@@ -2,15 +2,20 @@ import pytest
 
 from app.services.revenue_screener import (
     BusinessStatus,
+    ChainedResolver,
     CorpIdentity,
+    CorpOutline,
     CrnoResolver,
     FinancialRecord,
+    FscNameCrnoResolver,
     RevenueScreener,
     ScreeningError,
     _iter_items,
     _loads,
     has_valid_checksum,
+    load_brn_table,
     normalize_brn_list,
+    normalize_corp_name,
     parse_brn,
     select_qualified,
     summarize,
@@ -321,6 +326,264 @@ class TestSelectionAndSummary:
         assert payload["revenue_krw"] == 6_500_000_000
         assert payload["revenue_eok"] == 65.0
         assert payload["meets_threshold"] == 1
+
+
+class TestNormalizeCorpName:
+    @pytest.mark.parametrize(
+        "raw",
+        ["예시테크", "(주)예시테크", "㈜예시테크", "주식회사 예시테크", "예시 테크", "예시-테크", "예시테크 주식회사"],
+    )
+    def test_strips_corp_forms_and_punctuation(self, raw):
+        assert normalize_corp_name(raw) == "예시테크"
+
+    def test_distinguishes_different_names(self):
+        assert normalize_corp_name("예시테크") != normalize_corp_name("예시테크놀로지")
+
+
+class FakeOutlineClient:
+    """기업명 -> 후보 목록."""
+
+    def __init__(self, table):
+        self.table = table
+        self.calls = []
+
+    def search(self, corp_name):
+        self.calls.append(corp_name)
+        return self.table.get(corp_name, [])
+
+
+class TestFscNameCrnoResolver:
+    def test_single_exact_name_match_resolves(self):
+        resolver = FscNameCrnoResolver(
+            client=FakeOutlineClient({"예시테크": [CorpOutline(crno="C1", corp_name="(주)예시테크")]}),
+            names={"6138300570": "예시테크"},
+        )
+        identity = resolver.resolve("6138300570")
+
+        assert identity.crno == "C1"
+        assert identity.matched_by == "name"
+        assert identity.corp_name == "(주)예시테크"
+
+    def test_bizno_cross_check_wins_over_name(self):
+        # 동명이인 법인 둘 중 사업자등록번호가 일치하는 쪽을 고른다.
+        resolver = FscNameCrnoResolver(
+            client=FakeOutlineClient(
+                {
+                    "예시테크": [
+                        CorpOutline(crno="C1", corp_name="예시테크", bizno="9999999999"),
+                        CorpOutline(crno="C2", corp_name="예시테크", bizno="6138300570"),
+                    ]
+                }
+            ),
+            names={"6138300570": "예시테크"},
+        )
+        identity = resolver.resolve("6138300570")
+
+        assert identity.crno == "C2"
+        assert identity.matched_by == "bizno"
+
+    def test_duplicate_names_are_left_ambiguous(self):
+        resolver = FscNameCrnoResolver(
+            client=FakeOutlineClient(
+                {
+                    "예시테크": [
+                        CorpOutline(crno="C1", corp_name="예시테크"),
+                        CorpOutline(crno="C2", corp_name="(주)예시테크"),
+                    ]
+                }
+            ),
+            names={"6138300570": "예시테크"},
+        )
+        identity = resolver.resolve("6138300570")
+
+        assert identity.crno is None
+        assert identity.is_ambiguous
+        assert len(identity.candidates) == 2
+
+    def test_partial_matches_only_are_ambiguous(self):
+        # 부분일치만 잡히면 확정하지 않는다. 다른 법인의 매출을 가져올 위험이 있다.
+        resolver = FscNameCrnoResolver(
+            client=FakeOutlineClient({"예시테크": [CorpOutline(crno="C9", corp_name="예시테크놀로지")]}),
+            names={"6138300570": "예시테크"},
+        )
+        identity = resolver.resolve("6138300570")
+
+        assert identity.crno is None
+        assert identity.is_ambiguous
+
+    def test_no_candidates_is_not_ambiguous(self):
+        resolver = FscNameCrnoResolver(
+            client=FakeOutlineClient({}), names={"6138300570": "예시테크"}
+        )
+        identity = resolver.resolve("6138300570")
+
+        assert identity.crno is None
+        assert not identity.is_ambiguous
+        assert identity.corp_name == "예시테크"
+
+    def test_missing_name_skips_api_call(self):
+        client = FakeOutlineClient({})
+        resolver = FscNameCrnoResolver(client=client, names={})
+
+        assert resolver.resolve("6138300570").crno is None
+        assert client.calls == []
+
+    def test_result_is_cached(self):
+        client = FakeOutlineClient({"예시테크": [CorpOutline(crno="C1", corp_name="예시테크")]})
+        resolver = FscNameCrnoResolver(client=client, names={"6138300570": "예시테크"})
+
+        resolver.resolve("6138300570")
+        resolver.resolve("6138300570")
+
+        assert client.calls == ["예시테크"]
+
+    def test_api_failure_degrades_to_unresolved(self):
+        class FailingClient:
+            def search(self, corp_name):
+                raise ScreeningError("boom")
+
+        resolver = FscNameCrnoResolver(client=FailingClient(), names={"6138300570": "예시테크"})
+        identity = resolver.resolve("6138300570")
+
+        assert identity.crno is None
+        assert identity.corp_name == "예시테크"
+
+
+class TestChainedResolver:
+    def test_csv_hit_skips_name_lookup(self):
+        client = FakeOutlineClient({"예시테크": [CorpOutline(crno="FROM_API", corp_name="예시테크")]})
+        chained = ChainedResolver(
+            [
+                CrnoResolver({"6138300570": CorpIdentity("6138300570", "FROM_CSV", matched_by="csv")}),
+                FscNameCrnoResolver(client=client, names={"6138300570": "예시테크"}),
+            ]
+        )
+        identity = chained.resolve("6138300570")
+
+        assert identity.crno == "FROM_CSV"
+        assert client.calls == []
+
+    def test_falls_through_to_name_lookup(self):
+        client = FakeOutlineClient({"예시테크": [CorpOutline(crno="FROM_API", corp_name="예시테크")]})
+        chained = ChainedResolver(
+            [CrnoResolver(), FscNameCrnoResolver(client=client, names={"6138300570": "예시테크"})]
+        )
+        identity = chained.resolve("6138300570")
+
+        assert identity.crno == "FROM_API"
+        assert client.calls == ["예시테크"]
+
+    def test_preserves_candidates_when_nothing_resolves(self):
+        client = FakeOutlineClient(
+            {
+                "예시테크": [
+                    CorpOutline(crno="C1", corp_name="예시테크"),
+                    CorpOutline(crno="C2", corp_name="예시테크"),
+                ]
+            }
+        )
+        chained = ChainedResolver(
+            [CrnoResolver(), FscNameCrnoResolver(client=client, names={"6138300570": "예시테크"})]
+        )
+        identity = chained.resolve("6138300570")
+
+        assert identity.is_ambiguous
+        assert len(identity.candidates) == 2
+
+    def test_empty_chain_returns_bare_identity(self):
+        assert ChainedResolver([]).resolve("6138300570").crno is None
+
+
+class TestAmbiguityReporting:
+    def test_screening_row_notes_candidates_for_manual_review(self):
+        client = FakeOutlineClient(
+            {
+                "예시테크": [
+                    CorpOutline(crno="C1", corp_name="예시테크"),
+                    CorpOutline(crno="C2", corp_name="예시테크"),
+                ]
+            }
+        )
+        financial = FakeFinancialClient({"C1": {2025: 9_000_000_000}})
+        screener = _screener(
+            financial_client=financial,
+            resolver=FscNameCrnoResolver(client=client, names={"6138300570": "예시테크"}),
+        )
+        row = screener.screen(["6138300570"])[0]
+
+        # 후보를 임의로 고르지 않고 판정 불가로 남긴다.
+        assert row.meets_threshold is None
+        assert "수동 확인 필요" in row.note
+        assert financial.calls == []
+
+    def test_name_not_found_is_distinct_from_missing_crno(self):
+        screener = _screener(
+            resolver=FscNameCrnoResolver(client=FakeOutlineClient({}), names={"6138300570": "예시테크"})
+        )
+        row = screener.screen(["6138300570"])[0]
+
+        assert row.meets_threshold is None
+        assert "찾지 못함" in row.note
+
+    def test_matched_by_reaches_csv_output(self):
+        screener = _screener(
+            financial_client=FakeFinancialClient({"C1": {2025: 9_000_000_000}}),
+            resolver=FscNameCrnoResolver(
+                client=FakeOutlineClient({"예시테크": [CorpOutline(crno="C1", corp_name="예시테크")]}),
+                names={"6138300570": "예시테크"},
+            ),
+        )
+        payload = screener.screen(["6138300570"])[0].as_dict()
+
+        assert payload["matched_by"] == "name"
+        assert payload["meets_threshold"] == 1
+
+
+class TestLoadBrnTable:
+    def test_reads_brn_and_name_columns(self, tmp_path):
+        path = tmp_path / "list.csv"
+        path.write_text(
+            "사업자등록번호,기업명\n"
+            "613-83-00570,(주)예시테크\n"
+            "138-81-48176,예시산업\n"
+            "확인불가,알수없음\n"
+            "613-83-00570,중복행\n",
+            encoding="utf-8",
+        )
+        report, names = load_brn_table(str(path))
+
+        assert report.unique == ["6138300570", "1388148176"]
+        assert names == {"6138300570": "(주)예시테크", "1388148176": "예시산업"}
+
+    def test_header_row_is_rejected_not_treated_as_data(self, tmp_path):
+        path = tmp_path / "list.csv"
+        path.write_text("사업자등록번호,기업명\n613-83-00570,예시\n", encoding="utf-8")
+        report, _ = load_brn_table(str(path))
+
+        assert report.unique == ["6138300570"]
+        assert any(item.reason == "NO_DIGITS" for item in report.rejected)
+
+    def test_single_column_file_has_no_names(self, tmp_path):
+        path = tmp_path / "list.txt"
+        path.write_text("613-83-00570\n138-81-48176\n", encoding="utf-8")
+        report, names = load_brn_table(str(path))
+
+        assert len(report.unique) == 2
+        assert names == {}
+
+    def test_quoted_name_with_comma(self, tmp_path):
+        path = tmp_path / "list.csv"
+        path.write_text('613-83-00570,"예시테크, 주식회사"\n', encoding="utf-8")
+        _, names = load_brn_table(str(path))
+
+        assert names == {"6138300570": "예시테크, 주식회사"}
+
+    def test_tab_separated(self, tmp_path):
+        path = tmp_path / "list.tsv"
+        path.write_text("613-83-00570\t예시테크\n", encoding="utf-8")
+        _, names = load_brn_table(str(path))
+
+        assert names == {"6138300570": "예시테크"}
 
 
 class TestCrnoResolver:

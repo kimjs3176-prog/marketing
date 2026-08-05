@@ -20,6 +20,7 @@
 
 from __future__ import annotations
 
+import csv
 import json
 import re
 import time
@@ -166,13 +167,49 @@ def normalize_brn_list(rows: Iterable[str], *, verify_checksum: bool = True) -> 
     return report
 
 
+def _split_row(line: str) -> List[str]:
+    stripped = line.rstrip("\n").rstrip("\r")
+    if "\t" in stripped:
+        return stripped.split("\t")
+    if "," in stripped:
+        return next(iter(csv.reader([stripped])), [stripped])
+    return [stripped]
+
+
 def load_brn_list(path: str, *, verify_checksum: bool = True) -> BrnListReport:
     """텍스트/CSV 파일에서 사업자등록번호를 읽는다. 첫 컬럼만 본다."""
-    rows: List[str] = []
+    with open(path, "r", encoding="utf-8-sig") as handle:
+        rows = [_split_row(line)[0] for line in handle]
+    return normalize_brn_list(rows, verify_checksum=verify_checksum)
+
+
+def load_brn_table(path: str, *, verify_checksum: bool = True) -> tuple[BrnListReport, Dict[str, str]]:
+    """``사업자등록번호[,기업명]`` 형태의 파일을 읽는다.
+
+    2번째 컬럼이 있으면 기업명으로 쓴다. 헤더 행(첫 컬럼이 사업자등록번호로
+    파싱되지 않는 행)은 자동으로 걸러진다.
+
+    같은 사업자등록번호가 여러 번 나오면 처음 나온 기업명을 쓴다.
+    """
+    raw_rows: List[List[str]] = []
     with open(path, "r", encoding="utf-8-sig") as handle:
         for line in handle:
-            rows.append(line.split(",")[0].split("\t")[0] if "," in line else line)
-    return normalize_brn_list(rows, verify_checksum=verify_checksum)
+            if line.strip():
+                raw_rows.append(_split_row(line))
+
+    report = normalize_brn_list([row[0] for row in raw_rows], verify_checksum=verify_checksum)
+
+    names: Dict[str, str] = {}
+    for row in raw_rows:
+        if len(row) < 2:
+            continue
+        parsed = parse_brn(row[0], verify_checksum=verify_checksum)
+        name = row[1].strip().strip('"')
+        if parsed.ok and name and parsed.brn not in names:
+            assert parsed.brn is not None
+            names[parsed.brn] = name
+
+    return report, names
 
 
 # ---------------------------------------------------------------------------
@@ -321,6 +358,14 @@ class CorpIdentity:
     brn: str
     crno: Optional[str] = None
     corp_name: Optional[str] = None
+    #: 해석에 사용한 근거. bizno 교차검증이 되면 "bizno", 기업명 단일 일치면 "name".
+    matched_by: Optional[str] = None
+    #: 기업명으로 후보가 여러 개 잡혀 자동 확정하지 못한 경우의 후보 목록.
+    candidates: tuple = ()
+
+    @property
+    def is_ambiguous(self) -> bool:
+        return self.crno is None and bool(self.candidates)
 
 
 class CrnoResolver:
@@ -342,8 +387,6 @@ class CrnoResolver:
     @classmethod
     def from_csv(cls, path: str) -> "CrnoResolver":
         """``brn,crno[,corp_name]`` 헤더를 가진 CSV를 읽는다."""
-        import csv
-
         mapping: Dict[str, CorpIdentity] = {}
         with open(path, "r", encoding="utf-8-sig", newline="") as handle:
             for row in csv.DictReader(handle):
@@ -352,7 +395,12 @@ class CrnoResolver:
                 crno = _DIGITS_ONLY.sub("", lowered.get("crno") or lowered.get("법인등록번호") or "")
                 name = lowered.get("corp_name") or lowered.get("기업명") or None
                 if len(brn) == 10:
-                    mapping[brn] = CorpIdentity(brn=brn, crno=crno or None, corp_name=name or None)
+                    mapping[brn] = CorpIdentity(
+                        brn=brn,
+                        crno=crno or None,
+                        corp_name=name or None,
+                        matched_by="csv" if crno else None,
+                    )
         return cls(mapping)
 
     def resolve(self, brn: str) -> CorpIdentity:
@@ -360,6 +408,194 @@ class CrnoResolver:
 
     def __len__(self) -> int:
         return len(self._mapping)
+
+
+# 기업명 비교 시 무시할 법인 형태 표기.
+_CORP_FORM_TOKENS = (
+    "주식회사",
+    "유한회사",
+    "유한책임회사",
+    "합자회사",
+    "합명회사",
+    "재단법인",
+    "사단법인",
+    "농업회사법인",
+    "영농조합법인",
+    "협동조합",
+    "(주)",
+    "㈜",
+    "(유)",
+    "(재)",
+    "(사)",
+)
+
+_PUNCT = re.compile(r"[\s\-_.,'\"·ㆍ]")
+
+
+def normalize_corp_name(name: str) -> str:
+    """기업명을 비교용으로 정규화한다.
+
+    ``(주)예시테크``, ``주식회사 예시테크``, ``예시 테크`` 를 모두 ``예시테크`` 로 만든다.
+    """
+    text = (name or "").strip()
+    for token in _CORP_FORM_TOKENS:
+        text = text.replace(token, "")
+    return _PUNCT.sub("", text).lower()
+
+
+FSC_CORP_OUTLINE_URL = (
+    "https://apis.data.go.kr/1160100/service/GetCorpBasicInfoService_V2/getCorpOutline_V2"
+)
+
+# 기업개요 응답에서 사업자등록번호가 실려 오는 경우의 필드명 후보.
+# 실려 있으면 기업명 대신 이 값으로 교차검증한다(동명이인 법인 오매칭 방지).
+BIZNO_FIELD_CANDIDATES = ("bzno", "bizno", "brno", "bizrNo")
+
+
+@dataclass(frozen=True)
+class CorpOutline:
+    crno: str
+    corp_name: str
+    bizno: Optional[str] = None
+    raw: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class FscCorpOutlineClient:
+    """금융위원회_기업기본정보 기업개요조회. 기업명으로 법인등록번호를 찾는다."""
+
+    service_key: str
+    transport: HttpTransport = field(default_factory=HttpTransport)
+    url: str = FSC_CORP_OUTLINE_URL
+    num_of_rows: int = 50
+
+    def search(self, corp_name: str) -> List[CorpOutline]:
+        query = urllib.parse.urlencode(
+            {
+                "serviceKey": self.service_key,
+                "pageNo": 1,
+                "numOfRows": self.num_of_rows,
+                "resultType": "json",
+                "corpNm": corp_name,
+            },
+            quote_via=urllib.parse.quote,
+        )
+        payload = self.transport.request_json(f"{self.url}?{query}")
+
+        outlines: List[CorpOutline] = []
+        for item in _iter_items(payload):
+            crno = _DIGITS_ONLY.sub("", str(item.get("crno") or ""))
+            if not crno:
+                continue
+            bizno = None
+            for key in BIZNO_FIELD_CANDIDATES:
+                candidate = _DIGITS_ONLY.sub("", str(item.get(key) or ""))
+                if len(candidate) == 10:
+                    bizno = candidate
+                    break
+            outlines.append(
+                CorpOutline(
+                    crno=crno,
+                    corp_name=str(item.get("corpNm") or "").strip(),
+                    bizno=bizno,
+                    raw=item,
+                )
+            )
+        return outlines
+
+
+@dataclass
+class FscNameCrnoResolver:
+    """기업명으로 법인등록번호를 해석한다. ``CrnoResolver`` 와 같은 인터페이스.
+
+    확정 규칙 (엄격한 순서):
+
+    1. 응답에 사업자등록번호가 실려 있고 우리 번호와 일치하면 그 후보로 확정한다.
+       가장 신뢰도가 높으며 동명이인 법인 문제를 없앤다.
+    2. 정규화된 기업명이 정확히 하나만 일치하면 그 후보로 확정한다.
+    3. 그 외(0건, 또는 2건 이상 동명)는 확정하지 않고 후보를 남긴다.
+       자동으로 하나를 고르면 다른 법인의 매출을 가져올 위험이 있다.
+    """
+
+    client: FscCorpOutlineClient
+    names: Dict[str, str] = field(default_factory=dict)
+    _cache: Dict[str, CorpIdentity] = field(default_factory=dict, repr=False)
+
+    def resolve(self, brn: str) -> CorpIdentity:
+        if brn in self._cache:
+            return self._cache[brn]
+
+        name = self.names.get(brn)
+        if not name:
+            identity = CorpIdentity(brn=brn)
+        else:
+            identity = self._resolve_by_name(brn, name)
+
+        self._cache[brn] = identity
+        return identity
+
+    def _resolve_by_name(self, brn: str, name: str) -> CorpIdentity:
+        try:
+            candidates = self.client.search(name)
+        except ScreeningError:
+            return CorpIdentity(brn=brn, corp_name=name)
+
+        if not candidates:
+            return CorpIdentity(brn=brn, corp_name=name)
+
+        for candidate in candidates:
+            if candidate.bizno and candidate.bizno == brn:
+                return CorpIdentity(
+                    brn=brn,
+                    crno=candidate.crno,
+                    corp_name=candidate.corp_name or name,
+                    matched_by="bizno",
+                )
+
+        target = normalize_corp_name(name)
+        exact = [c for c in candidates if normalize_corp_name(c.corp_name) == target]
+
+        if len(exact) == 1:
+            return CorpIdentity(
+                brn=brn,
+                crno=exact[0].crno,
+                corp_name=exact[0].corp_name or name,
+                matched_by="name",
+            )
+
+        pool = exact or candidates
+        return CorpIdentity(
+            brn=brn,
+            corp_name=name,
+            candidates=tuple((c.crno, c.corp_name) for c in pool[:10]),
+        )
+
+    def __len__(self) -> int:
+        return len(self.names)
+
+
+@dataclass
+class ChainedResolver:
+    """앞선 리졸버가 확정하지 못하면 다음 리졸버로 넘긴다.
+
+    보유 중인 법인등록번호 CSV를 먼저 쓰고, 빠진 건만 API로 조회해 호출량을 줄인다.
+    """
+
+    resolvers: Sequence[Any]
+
+    def resolve(self, brn: str) -> CorpIdentity:
+        fallback = CorpIdentity(brn=brn)
+        for resolver in self.resolvers:
+            identity = resolver.resolve(brn)
+            if identity.crno:
+                return identity
+            # 기업명이나 후보 정보가 있으면 보존해 둔다.
+            if identity.corp_name or identity.candidates:
+                fallback = identity
+        return fallback
+
+    def __len__(self) -> int:
+        return sum(len(resolver) for resolver in self.resolvers)
 
 
 # ---------------------------------------------------------------------------
@@ -480,6 +716,7 @@ class ScreeningRow:
     formatted: str
     corp_name: Optional[str] = None
     crno: Optional[str] = None
+    matched_by: Optional[str] = None
     nts_status: Optional[str] = None
     tax_type: Optional[str] = None
     biz_year: Optional[str] = None
@@ -499,6 +736,7 @@ class ScreeningRow:
             "formatted": self.formatted,
             "corp_name": self.corp_name or "",
             "crno": self.crno or "",
+            "matched_by": self.matched_by or "",
             "nts_status": self.nts_status or "",
             "tax_type": self.tax_type or "",
             "biz_year": self.biz_year or "",
@@ -514,6 +752,7 @@ CSV_COLUMNS = (
     "formatted",
     "corp_name",
     "crno",
+    "matched_by",
     "nts_status",
     "tax_type",
     "biz_year",
@@ -553,6 +792,7 @@ class RevenueScreener:
             formatted=f"{brn[0:3]}-{brn[3:5]}-{brn[5:10]}",
             corp_name=identity.corp_name,
             crno=identity.crno,
+            matched_by=identity.matched_by,
             nts_status=status.status if status else None,
             tax_type=status.tax_type if status else None,
         )
@@ -572,7 +812,13 @@ class RevenueScreener:
                 return row
 
         if not identity.crno:
-            row.note = "법인등록번호 미확보 — 재무조회 불가"
+            if identity.is_ambiguous:
+                names = ", ".join(f"{name}({crno})" for crno, name in identity.candidates[:3])
+                row.note = f"기업명 후보 {len(identity.candidates)}건 — 수동 확인 필요: {names}"
+            elif identity.corp_name:
+                row.note = "기업명으로 법인등록번호를 찾지 못함(비공시 법인 등)"
+            else:
+                row.note = "법인등록번호 미확보 — 재무조회 불가"
             return row
 
         record = self._fetch_best_record(identity.crno)
@@ -582,7 +828,6 @@ class RevenueScreener:
 
         row.biz_year = record.biz_year
         row.revenue_krw = record.revenue_krw
-        row.corp_name = row.corp_name or None
 
         if record.revenue_krw is None:
             row.note = "매출액 항목 없음"

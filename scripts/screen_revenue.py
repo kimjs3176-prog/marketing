@@ -30,14 +30,17 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.services.revenue_screener import (  # noqa: E402
     CSV_COLUMNS,
     DEFAULT_REVENUE_THRESHOLD_KRW,
+    ChainedResolver,
     CrnoResolver,
+    FscCorpOutlineClient,
     FscFinancialClient,
+    FscNameCrnoResolver,
     HttpTransport,
     NtsBusinessStatusClient,
     RevenueScreener,
     ScreeningError,
     ScreeningRow,
-    load_brn_list,
+    load_brn_table,
     select_qualified,
     summarize,
 )
@@ -76,19 +79,21 @@ def _write_csv(path: str, rows: Sequence[ScreeningRow]) -> None:
             writer.writerow(row.as_dict())
 
 
-def _report_list(path: str, verify_checksum: bool) -> List[str]:
-    report = load_brn_list(path, verify_checksum=verify_checksum)
+def _report_list(path: str, verify_checksum: bool) -> tuple[List[str], dict]:
+    report, names = load_brn_table(path, verify_checksum=verify_checksum)
     print(f"입력 행수        : {report.total_rows:,}")
     print(f"유효 사업자번호  : {len(report.unique):,} (중복 제거 후)")
     print(f"중복 제거된 행수 : {report.duplicate_rows:,}")
     print(f"제외된 행수      : {len(report.rejected):,}")
     for reason, count in report.reason_counts.items():
         print(f"  - {reason:<18} {count:,}")
-    return report.unique
+    if names:
+        print(f"기업명 확보      : {len(names):,} / {len(report.unique):,}")
+    return report.unique, names
 
 
 def cmd_normalize(args: argparse.Namespace) -> int:
-    unique = _report_list(args.input, not args.no_checksum)
+    unique, _ = _report_list(args.input, not args.no_checksum)
     if args.output:
         directory = os.path.dirname(os.path.abspath(args.output))
         os.makedirs(directory, exist_ok=True)
@@ -99,7 +104,7 @@ def cmd_normalize(args: argparse.Namespace) -> int:
 
 
 def cmd_status(args: argparse.Namespace) -> int:
-    unique = _report_list(args.input, not args.no_checksum)
+    unique, _ = _report_list(args.input, not args.no_checksum)
     client = NtsBusinessStatusClient(
         service_key=_resolve_key(args.service_key),
         transport=_build_transport(args),
@@ -134,19 +139,35 @@ def cmd_status(args: argparse.Namespace) -> int:
 
 
 def cmd_screen(args: argparse.Namespace) -> int:
-    unique = _report_list(args.input, not args.no_checksum)
+    unique, names = _report_list(args.input, not args.no_checksum)
     key = _resolve_key(args.service_key)
     transport = _build_transport(args)
 
-    resolver = CrnoResolver.from_csv(args.crno_map) if args.crno_map else CrnoResolver()
-    if not len(resolver):
+    # 보유 중인 CSV 매핑을 먼저 쓰고, 빠진 건만 기업명으로 조회해 호출량을 줄인다.
+    stages = []
+    if args.crno_map:
+        csv_resolver = CrnoResolver.from_csv(args.crno_map)
+        print(f"법인등록번호 매핑: {len(csv_resolver):,}건 로드 (CSV)")
+        stages.append(csv_resolver)
+
+    if names and not args.no_name_lookup:
+        stages.append(
+            FscNameCrnoResolver(
+                client=FscCorpOutlineClient(service_key=key, transport=transport),
+                names=names,
+            )
+        )
+        print(f"기업명 기반 해석 : {len(names):,}건 대상 (금융위 기업개요조회)")
+
+    if not stages:
         print(
-            "\n경고: 법인등록번호 매핑이 비어 있습니다. 금융위 재무 API는 crno(법인등록번호)만 "
-            "받으므로 매출액 조회가 전부 건너뛰어집니다. --crno-map 을 지정하세요.",
+            "\n경고: 법인등록번호를 얻을 경로가 없습니다. 금융위 재무 API는 crno만 받으므로 "
+            "매출액 조회가 전부 건너뛰어집니다. 입력 파일에 기업명 컬럼을 추가하거나 "
+            "--crno-map 을 지정하세요.",
             file=sys.stderr,
         )
-    else:
-        print(f"법인등록번호 매핑: {len(resolver):,}건 로드")
+
+    resolver = ChainedResolver(stages) if len(stages) != 1 else stages[0]
 
     if args.limit:
         unique = unique[: args.limit]
@@ -189,6 +210,74 @@ def cmd_screen(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_resolve(args: argparse.Namespace) -> int:
+    """기업명으로 법인등록번호를 찾아 재사용 가능한 매핑 CSV로 저장한다.
+
+    ``screen`` 을 여러 번 돌릴 때 같은 조회를 반복하지 않도록 분리해 두었다.
+    확정되지 않은 건은 ``candidates`` 컬럼에 후보를 남겨 수동 확인을 받는다.
+    """
+    unique, names = _report_list(args.input, not args.no_checksum)
+    if not names:
+        print(
+            "\n입력 파일에 기업명 컬럼이 없습니다. `사업자등록번호,기업명` 2열 CSV가 필요합니다.",
+            file=sys.stderr,
+        )
+        return 2
+
+    if args.limit:
+        unique = unique[: args.limit]
+
+    resolver = FscNameCrnoResolver(
+        client=FscCorpOutlineClient(service_key=_resolve_key(args.service_key), transport=_build_transport(args)),
+        names=names,
+    )
+
+    print(f"\n기업명 {len(unique):,}건 해석 중...")
+    resolved, ambiguous, missing = 0, 0, 0
+    rows = []
+    for index, brn in enumerate(unique, start=1):
+        try:
+            identity = resolver.resolve(brn)
+        except ScreeningError as exc:
+            print(f"\n조회 실패({brn}): {exc}", file=sys.stderr)
+            return 1
+
+        if identity.crno:
+            resolved += 1
+        elif identity.is_ambiguous:
+            ambiguous += 1
+        else:
+            missing += 1
+
+        rows.append(
+            {
+                "brn": brn,
+                "crno": identity.crno or "",
+                "corp_name": identity.corp_name or names.get(brn, ""),
+                "matched_by": identity.matched_by or "",
+                "candidates": " | ".join(f"{name}({crno})" for crno, name in identity.candidates),
+            }
+        )
+        if args.progress and index % args.progress == 0:
+            print(f"  {index:,}/{len(unique):,} (확정 {resolved:,})")
+
+    print(f"\n확정      : {resolved:,}")
+    print(f"후보 다수 : {ambiguous:,} (수동 확인 필요)")
+    print(f"미발견    : {missing:,}")
+
+    if args.output:
+        directory = os.path.dirname(os.path.abspath(args.output))
+        os.makedirs(directory, exist_ok=True)
+        with open(args.output, "w", encoding="utf-8-sig", newline="") as handle:
+            writer = csv.DictWriter(
+                handle, fieldnames=["brn", "crno", "corp_name", "matched_by", "candidates"]
+            )
+            writer.writeheader()
+            writer.writerows(rows)
+        print(f"\n저장: {args.output}  (screen --crno-map 으로 재사용)")
+    return 0
+
+
 def cmd_probe(args: argparse.Namespace) -> int:
     """응답 원본을 그대로 출력한다. 필드명/단위 확인용."""
     key = _resolve_key(args.service_key)
@@ -199,6 +288,22 @@ def cmd_probe(args: argparse.Namespace) -> int:
         try:
             statuses = NtsBusinessStatusClient(key, transport=transport).fetch([args.brn])
             print(json.dumps({k: vars(v) for k, v in statuses.items()}, ensure_ascii=False, indent=2))
+        except ScreeningError as exc:
+            print(f"실패: {exc}", file=sys.stderr)
+
+    if args.corp_name:
+        print("\n=== 금융위 기업기본정보 기업개요조회 ===")
+        try:
+            outlines = FscCorpOutlineClient(key, transport=transport).search(args.corp_name)
+            if not outlines:
+                print("(항목 없음)")
+            for outline in outlines:
+                print(json.dumps(outline.raw, ensure_ascii=False, indent=2))
+                print(f"-> crno={outline.crno} corp_name={outline.corp_name} bizno={outline.bizno}")
+            print(
+                "\n확인 사항: 응답에 사업자등록번호 필드가 있으면 BIZNO_FIELD_CANDIDATES 에 "
+                "추가하십시오. 있으면 동명이인 법인을 교차검증으로 걸러낼 수 있습니다."
+            )
         except ScreeningError as exc:
             print(f"실패: {exc}", file=sys.stderr)
 
@@ -214,8 +319,8 @@ def cmd_probe(args: argparse.Namespace) -> int:
         except ScreeningError as exc:
             print(f"실패: {exc}", file=sys.stderr)
 
-    if not args.brn and not args.crno:
-        print("--brn 또는 --crno 중 하나는 필요합니다.", file=sys.stderr)
+    if not args.brn and not args.crno and not args.corp_name:
+        print("--brn, --crno, --corp-name 중 하나는 필요합니다.", file=sys.stderr)
         return 2
     return 0
 
@@ -249,6 +354,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_screen.add_argument("-o", "--output")
     p_screen.add_argument("--no-checksum", action="store_true")
     p_screen.add_argument("--crno-map", help="brn,crno[,corp_name] CSV")
+    p_screen.add_argument(
+        "--no-name-lookup",
+        action="store_true",
+        help="기업명으로 법인등록번호를 조회하지 않음 (--crno-map 만 사용)",
+    )
     p_screen.add_argument("--threshold", type=float, default=DEFAULT_REVENUE_THRESHOLD_KRW)
     p_screen.add_argument("--biz-year", type=int, default=2025, help="직전 사업연도 (기본 2025)")
     p_screen.add_argument("--no-fallback", action="store_true", help="직전연도 없을 때 전년도로 대체하지 않음")
@@ -258,9 +368,19 @@ def build_parser() -> argparse.ArgumentParser:
     _add_common(p_screen)
     p_screen.set_defaults(func=cmd_screen)
 
+    p_resolve = sub.add_parser("resolve", help="기업명 → 법인등록번호 매핑 CSV 생성")
+    p_resolve.add_argument("input", help="`사업자등록번호,기업명` 2열 CSV")
+    p_resolve.add_argument("-o", "--output")
+    p_resolve.add_argument("--no-checksum", action="store_true")
+    p_resolve.add_argument("--limit", type=int, help="앞 N건만 조회")
+    p_resolve.add_argument("--progress", type=int, default=100, help="N건마다 진행 상황 출력")
+    _add_common(p_resolve)
+    p_resolve.set_defaults(func=cmd_resolve)
+
     p_probe = sub.add_parser("probe", help="응답 원본 덤프 (필드명/단위 확인)")
     p_probe.add_argument("--brn", help="사업자등록번호 10자리")
     p_probe.add_argument("--crno", help="법인등록번호 13자리")
+    p_probe.add_argument("--corp-name", help="기업명 (기업개요조회 확인용)")
     p_probe.add_argument("--biz-year", type=int, default=2025)
     _add_common(p_probe)
     p_probe.set_defaults(func=cmd_probe)
