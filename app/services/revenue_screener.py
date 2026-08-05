@@ -167,10 +167,236 @@ def normalize_brn_list(rows: Iterable[str], *, verify_checksum: bool = True) -> 
     return report
 
 
+# ---------------------------------------------------------------------------
+# 법인등록번호 정제
+# ---------------------------------------------------------------------------
+
+# 주민등록번호 검증 가중치. 법인등록번호 칼럼에 개인사업자의 주민등록번호가
+# 섞여 들어오는 경우가 있어, 외부 API로 내보내기 전에 걸러내기 위해 쓴다.
+_RRN_WEIGHTS = (2, 3, 4, 5, 6, 7, 8, 9, 2, 3, 4, 5)
+
+_NON_CRNO_MARKERS = _NON_BRN_MARKERS
+
+
+def looks_like_personal_id(digits: str) -> bool:
+    """13자리 숫자가 법인등록번호가 아니라 주민등록번호로 보이는지 판정한다.
+
+    세 조건을 모두 만족할 때만 참이다.
+
+    1. 앞 6자리가 ``YYMMDD`` 형태의 유효한 날짜
+    2. 7번째 자리가 1~4 (주민등록번호의 성별·세기 구분자 범위)
+    3. 주민등록번호 검증식을 통과
+
+    법인등록번호의 앞 6자리는 등기소·법인종류 코드라서 ``134111``(월 41)처럼
+    날짜가 될 수 없는 값이 많고, 7번째 자리는 보통 0이며, 주민등록번호
+    검증식을 우연히 통과할 확률도 낮다. 세 조건을 겹쳐 오탐을 줄였다.
+    """
+    if len(digits) != 13 or not digits.isdigit():
+        return False
+
+    month, day, seventh = digits[2:4], digits[4:6], digits[6]
+    if not ("01" <= month <= "12" and "01" <= day <= "31"):
+        return False
+    if seventh not in "1234":
+        return False
+
+    total = sum(int(digit) * weight for digit, weight in zip(digits[:12], _RRN_WEIGHTS))
+    return (11 - total % 11) % 10 == int(digits[12])
+
+
+@dataclass(frozen=True)
+class ParsedCrno:
+    raw: str
+    crno: Optional[str] = None
+    reason: Optional[str] = None
+
+    @property
+    def ok(self) -> bool:
+        return self.crno is not None
+
+
+def parse_crno(raw: str, *, allow_personal_id: bool = False) -> ParsedCrno:
+    """법인등록번호 한 칸을 13자리 숫자로 정규화한다.
+
+    - ``110111-0006246`` / ``1101110006246`` → 정상
+    - 빈 값 → ``BLANK`` (기업명 조회로 넘어갈 수 있으므로 오류가 아니다)
+    - ``무상``, ``확인불가`` → ``NON_CRNO_MARKER``
+    - ``141211-014578``(12자리), ``20534372``(8자리) → ``BAD_LENGTH``
+    - 주민등록번호로 보이는 값 → ``PERSONAL_ID`` (기본적으로 조회에서 제외)
+    """
+    text = (raw or "").replace(" ", " ").strip().strip('"').strip("'").strip()
+
+    if not text:
+        return ParsedCrno(raw=raw, reason="BLANK")
+    if any(marker in text for marker in _NON_CRNO_MARKERS):
+        return ParsedCrno(raw=raw, reason="NON_CRNO_MARKER")
+
+    digits = _DIGITS_ONLY.sub("", text)
+    if not digits:
+        return ParsedCrno(raw=raw, reason="NO_DIGITS")
+    if len(digits) != 13:
+        return ParsedCrno(raw=raw, reason="BAD_LENGTH")
+    if set(digits) == {"0"}:
+        return ParsedCrno(raw=raw, reason="ALL_ZERO")
+    if looks_like_personal_id(digits) and not allow_personal_id:
+        # 개인 식별정보를 외부 API로 전송하지 않는다.
+        return ParsedCrno(raw=raw, reason="PERSONAL_ID")
+
+    return ParsedCrno(raw=raw, crno=digits)
+
+
+# ---------------------------------------------------------------------------
+# 표 형태 입력 읽기
+# ---------------------------------------------------------------------------
+
+# 헤더 이름은 기관마다 다르므로 부분 일치로 찾는다. 순서가 중요하다:
+# "법인등록번호"를 먼저 잡아야 "사업자"에 걸리지 않는다.
+_HEADER_ALIASES: Sequence[tuple] = (
+    ("crno", ("법인등록번호", "법인번호", "crno", "jurirno", "corpno")),
+    ("brn", ("사업자등록번호", "사업자번호", "사업자", "brn", "bizno", "bno", "bizrno")),
+    ("corp_name", ("업체명", "기업명", "회사명", "상호", "corpname", "companyname", "company")),
+)
+
+_HEADER_NOISE = re.compile(r"[\(（][^)）]*[)）]|[\s_\-.]")
+
+
+def _normalize_header(cell: str) -> str:
+    """헤더 칸에서 괄호 주석과 공백·기호를 떼고 비교용 문자열을 만든다.
+
+    ``업체명(마스터 데이터)`` → ``업체명``, ``법인등록번호(마스터 데이터)`` → ``법인등록번호``
+    """
+    return _HEADER_NOISE.sub("", (cell or "").strip().strip('"')).lower()
+
+
+def detect_columns(cells: Sequence[str]) -> Dict[str, int]:
+    """헤더 행에서 필드별 컬럼 위치를 찾는다. 못 찾으면 빈 dict."""
+    found: Dict[str, int] = {}
+    for index, cell in enumerate(cells):
+        normalized = _normalize_header(cell)
+        if not normalized:
+            continue
+        for field, aliases in _HEADER_ALIASES:
+            if field in found:
+                continue
+            if any(alias in normalized for alias in aliases):
+                found[field] = index
+                break
+    return found if "brn" in found else {}
+
+
+@dataclass
+class CompanyTable:
+    """사업자등록번호·기업명·법인등록번호를 함께 담은 입력 표."""
+
+    report: BrnListReport = field(default_factory=BrnListReport)
+    names: Dict[str, str] = field(default_factory=dict)
+    crnos: Dict[str, str] = field(default_factory=dict)
+    crno_rejected: List[ParsedCrno] = field(default_factory=list)
+    columns: Dict[str, int] = field(default_factory=dict)
+
+    @property
+    def crno_reason_counts(self) -> Dict[str, int]:
+        counts: Dict[str, int] = {}
+        for item in self.crno_rejected:
+            if item.reason == "BLANK":
+                continue  # 빈 칸은 정상. 기업명으로 조회하면 된다.
+            counts[item.reason or "UNKNOWN"] = counts.get(item.reason or "UNKNOWN", 0) + 1
+        return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
+
+    def to_resolver(self) -> "CrnoResolver":
+        mapping = {
+            brn: CorpIdentity(
+                brn=brn,
+                crno=crno,
+                corp_name=self.names.get(brn),
+                matched_by="csv",
+            )
+            for brn, crno in self.crnos.items()
+        }
+        return CrnoResolver(mapping)
+
+
+def load_company_table(
+    path: str,
+    *,
+    verify_checksum: bool = True,
+    allow_personal_id: bool = False,
+) -> CompanyTable:
+    """CSV/TSV 한 장에서 사업자등록번호·기업명·법인등록번호를 모두 읽는다.
+
+    헤더 이름은 부분 일치로 찾으므로 ``사업자번호``/``사업자등록번호``,
+    ``업체명(마스터 데이터)``/``기업명`` 같은 표기 차이를 흡수한다. 헤더를
+    찾지 못하면 ``사업자등록번호, 기업명`` 순의 2열 파일로 간주한다.
+
+    같은 사업자등록번호가 여러 번 나올 때 기업명은 처음 나온 값을 쓰고,
+    법인등록번호는 값이 채워진 첫 행에서 가져온다. 원본 목록은 같은 기업이
+    수십 번 반복되면서 법인등록번호가 일부 행에만 적혀 있는 경우가 있다.
+
+    거절 사유는 행 단위가 아니라 기업 단위로 집계한다. 끝까지 법인등록번호를
+    얻지 못한 기업만 남긴다.
+    """
+    rows: List[List[str]] = []
+    with open(path, "r", encoding="utf-8-sig") as handle:
+        for line in handle:
+            if line.strip():
+                rows.append(_split_row(line))
+
+    if not rows:
+        return CompanyTable()
+
+    columns = detect_columns(rows[0])
+    if columns:
+        rows = rows[1:]
+    else:
+        columns = {"brn": 0, "corp_name": 1}
+
+    def cell(row: Sequence[str], field_name: str) -> str:
+        index = columns.get(field_name)
+        if index is None or index >= len(row):
+            return ""
+        return row[index]
+
+    table = CompanyTable(columns=columns)
+    table.report = normalize_brn_list([cell(row, "brn") for row in rows], verify_checksum=verify_checksum)
+
+    # 기업 단위 거절 사유. 나중에 법인등록번호를 얻은 기업은 제거한다.
+    pending: Dict[str, ParsedCrno] = {}
+
+    for row in rows:
+        parsed = parse_brn(cell(row, "brn"), verify_checksum=verify_checksum)
+        if not parsed.ok:
+            continue
+        brn = parsed.brn
+        assert brn is not None
+
+        name = cell(row, "corp_name").strip().strip('"')
+        if name and brn not in table.names:
+            table.names[brn] = name
+
+        if brn in table.crnos:
+            continue
+        parsed_crno = parse_crno(cell(row, "crno"), allow_personal_id=allow_personal_id)
+        if parsed_crno.ok:
+            assert parsed_crno.crno is not None
+            table.crnos[brn] = parsed_crno.crno
+        elif brn not in pending or pending[brn].reason == "BLANK":
+            # 빈 칸보다 구체적인 사유(주민등록번호·자리수 오류)를 남긴다.
+            pending[brn] = parsed_crno
+
+    table.crno_rejected = [item for brn, item in pending.items() if brn not in table.crnos]
+    return table
+
+
 def _split_row(line: str) -> List[str]:
+    """한 줄을 칸으로 나눈다. 탭 우선, 없으면 쉼표.
+
+    ``csv.reader`` 를 쓰므로 인용부호로 감싼 칸 안의 구분자를 살린다. 원본
+    목록에 ``"\\t635-86-03151"`` 처럼 탭을 품은 인용 칸이 있어 단순 split 으로는
+    컬럼이 밀린다.
+    """
     stripped = line.rstrip("\n").rstrip("\r")
     if "\t" in stripped:
-        return stripped.split("\t")
+        return next(iter(csv.reader([stripped], delimiter="\t")), [stripped])
     if "," in stripped:
         return next(iter(csv.reader([stripped])), [stripped])
     return [stripped]

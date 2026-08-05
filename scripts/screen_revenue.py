@@ -1,18 +1,25 @@
 #!/usr/bin/env python3
 """사업자등록번호 목록에서 직전연도 매출액 50억 이상 기업을 골라낸다.
 
+입력은 `업체명 / 사업자번호 / 법인등록번호` 컬럼을 가진 CSV·TSV 한 장이면 된다.
+헤더 이름은 부분 일치로 찾으므로 `사업자번호`/`사업자등록번호`,
+`업체명(마스터 데이터)`/`기업명` 같은 표기 차이를 그대로 받는다.
+
     # 1) 목록 정제만 (네트워크 없이 즉시 실행 가능)
-    python scripts/screen_revenue.py normalize data/business_numbers.txt
+    python scripts/screen_revenue.py normalize data/companies.tsv
 
     # 2) 국세청 상태조회로 폐업/간이과세자 걸러내기
     export DATA_GO_KR_API_KEY=...
-    python scripts/screen_revenue.py status data/business_numbers.txt -o out/status.csv
+    python scripts/screen_revenue.py status data/companies.tsv -o out/status.csv
 
-    # 3) 매출액까지 조회해 최종 선별 (법인등록번호 매핑 필요)
-    python scripts/screen_revenue.py screen data/business_numbers.txt \
+    # 3) 법인등록번호가 빈 기업만 기업명으로 보충 (한 번 만들어 재사용)
+    python scripts/screen_revenue.py resolve data/companies.tsv -o data/crno_map.csv
+
+    # 4) 매출액 조회 후 최종 선별
+    python scripts/screen_revenue.py screen data/companies.tsv \
         --crno-map data/crno_map.csv -o out/result.csv
 
-    # 4) 응답 필드명 확인용 원본 덤프
+    # 5) 응답 필드명 확인용 원본 덤프
     python scripts/screen_revenue.py probe --crno 1101110043221 --biz-year 2025
 """
 
@@ -40,7 +47,7 @@ from app.services.revenue_screener import (  # noqa: E402
     RevenueScreener,
     ScreeningError,
     ScreeningRow,
-    load_brn_table,
+    load_company_table,
     select_qualified,
     summarize,
 )
@@ -79,21 +86,39 @@ def _write_csv(path: str, rows: Sequence[ScreeningRow]) -> None:
             writer.writerow(row.as_dict())
 
 
-def _report_list(path: str, verify_checksum: bool) -> tuple[List[str], dict]:
-    report, names = load_brn_table(path, verify_checksum=verify_checksum)
+def _load_table(args: argparse.Namespace):
+    """입력 파일을 읽고 정제 결과를 출력한다."""
+    table = load_company_table(
+        args.input,
+        verify_checksum=not args.no_checksum,
+        allow_personal_id=getattr(args, "allow_personal_id", False),
+    )
+    report = table.report
+
+    if table.columns:
+        detected = ", ".join(f"{k}={v}" for k, v in sorted(table.columns.items(), key=lambda kv: kv[1]))
+        print(f"인식된 컬럼      : {detected}")
+
     print(f"입력 행수        : {report.total_rows:,}")
     print(f"유효 사업자번호  : {len(report.unique):,} (중복 제거 후)")
     print(f"중복 제거된 행수 : {report.duplicate_rows:,}")
     print(f"제외된 행수      : {len(report.rejected):,}")
     for reason, count in report.reason_counts.items():
         print(f"  - {reason:<18} {count:,}")
-    if names:
-        print(f"기업명 확보      : {len(names):,} / {len(report.unique):,}")
-    return report.unique, names
+
+    if table.names:
+        print(f"기업명 확보      : {len(table.names):,} / {len(report.unique):,}")
+    if table.crnos:
+        print(f"법인등록번호 확보: {len(table.crnos):,} / {len(report.unique):,}")
+    for reason, count in table.crno_reason_counts.items():
+        label = "주민등록번호로 판정 — 조회 제외" if reason == "PERSONAL_ID" else ""
+        print(f"  - 법인번호 {reason:<16} {count:,} {label}")
+
+    return table
 
 
 def cmd_normalize(args: argparse.Namespace) -> int:
-    unique, _ = _report_list(args.input, not args.no_checksum)
+    unique = _load_table(args).report.unique
     if args.output:
         directory = os.path.dirname(os.path.abspath(args.output))
         os.makedirs(directory, exist_ok=True)
@@ -104,7 +129,7 @@ def cmd_normalize(args: argparse.Namespace) -> int:
 
 
 def cmd_status(args: argparse.Namespace) -> int:
-    unique, _ = _report_list(args.input, not args.no_checksum)
+    unique = _load_table(args).report.unique
     client = NtsBusinessStatusClient(
         service_key=_resolve_key(args.service_key),
         transport=_build_transport(args),
@@ -139,15 +164,19 @@ def cmd_status(args: argparse.Namespace) -> int:
 
 
 def cmd_screen(args: argparse.Namespace) -> int:
-    unique, names = _report_list(args.input, not args.no_checksum)
+    table = _load_table(args)
+    unique, names = table.report.unique, table.names
     key = _resolve_key(args.service_key)
     transport = _build_transport(args)
 
-    # 보유 중인 CSV 매핑을 먼저 쓰고, 빠진 건만 기업명으로 조회해 호출량을 줄인다.
+    # 확보된 법인등록번호를 먼저 쓰고, 빠진 건만 기업명으로 조회해 호출량을 줄인다.
     stages = []
+    if table.crnos:
+        stages.append(table.to_resolver())
+
     if args.crno_map:
         csv_resolver = CrnoResolver.from_csv(args.crno_map)
-        print(f"법인등록번호 매핑: {len(csv_resolver):,}건 로드 (CSV)")
+        print(f"법인등록번호 매핑: {len(csv_resolver):,}건 로드 (--crno-map)")
         stages.append(csv_resolver)
 
     if names and not args.no_name_lookup:
@@ -162,8 +191,8 @@ def cmd_screen(args: argparse.Namespace) -> int:
     if not stages:
         print(
             "\n경고: 법인등록번호를 얻을 경로가 없습니다. 금융위 재무 API는 crno만 받으므로 "
-            "매출액 조회가 전부 건너뛰어집니다. 입력 파일에 기업명 컬럼을 추가하거나 "
-            "--crno-map 을 지정하세요.",
+            "매출액 조회가 전부 건너뛰어집니다. 입력 파일에 기업명 또는 법인등록번호 "
+            "컬럼을 추가하거나 --crno-map 을 지정하세요.",
             file=sys.stderr,
         )
 
@@ -216,7 +245,8 @@ def cmd_resolve(args: argparse.Namespace) -> int:
     ``screen`` 을 여러 번 돌릴 때 같은 조회를 반복하지 않도록 분리해 두었다.
     확정되지 않은 건은 ``candidates`` 컬럼에 후보를 남겨 수동 확인을 받는다.
     """
-    unique, names = _report_list(args.input, not args.no_checksum)
+    table = _load_table(args)
+    unique, names = table.report.unique, table.names
     if not names:
         print(
             "\n입력 파일에 기업명 컬럼이 없습니다. `사업자등록번호,기업명` 2열 CSV가 필요합니다.",
@@ -231,6 +261,11 @@ def cmd_resolve(args: argparse.Namespace) -> int:
         client=FscCorpOutlineClient(service_key=_resolve_key(args.service_key), transport=_build_transport(args)),
         names=names,
     )
+
+    if table.crnos and not args.refresh:
+        before = len(unique)
+        unique = [brn for brn in unique if brn not in table.crnos]
+        print(f"이미 확보된 법인등록번호 {before - len(unique):,}건은 조회를 건너뜁니다.")
 
     print(f"\n기업명 {len(unique):,}건 해석 중...")
     resolved, ambiguous, missing = 0, 0, 0
@@ -252,7 +287,7 @@ def cmd_resolve(args: argparse.Namespace) -> int:
         rows.append(
             {
                 "brn": brn,
-                "crno": identity.crno or "",
+                "crno": identity.crno or table.crnos.get(brn, ""),
                 "corp_name": identity.corp_name or names.get(brn, ""),
                 "matched_by": identity.matched_by or "",
                 "candidates": " | ".join(f"{name}({crno})" for crno, name in identity.candidates),
@@ -325,6 +360,15 @@ def cmd_probe(args: argparse.Namespace) -> int:
     return 0
 
 
+def _add_table_opts(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--no-checksum", action="store_true", help="사업자등록번호 체크섬 검증 생략")
+    parser.add_argument(
+        "--allow-personal-id",
+        action="store_true",
+        help="법인등록번호 칸의 주민등록번호로 보이는 값도 조회에 사용 (기본은 제외)",
+    )
+
+
 def _add_common(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--service-key", help="공공데이터포털 인증키 (Decoding 키)")
     parser.add_argument("--timeout", type=float, default=20.0)
@@ -339,20 +383,20 @@ def build_parser() -> argparse.ArgumentParser:
     p_norm = sub.add_parser("normalize", help="목록 정제/중복제거 (네트워크 불필요)")
     p_norm.add_argument("input")
     p_norm.add_argument("-o", "--output")
-    p_norm.add_argument("--no-checksum", action="store_true", help="체크섬 검증 생략")
+    _add_table_opts(p_norm)
     p_norm.set_defaults(func=cmd_normalize)
 
     p_status = sub.add_parser("status", help="국세청 사업자등록 상태조회")
     p_status.add_argument("input")
     p_status.add_argument("-o", "--output")
-    p_status.add_argument("--no-checksum", action="store_true")
+    _add_table_opts(p_status)
     _add_common(p_status)
     p_status.set_defaults(func=cmd_status)
 
     p_screen = sub.add_parser("screen", help="매출액 기준 최종 선별")
     p_screen.add_argument("input")
     p_screen.add_argument("-o", "--output")
-    p_screen.add_argument("--no-checksum", action="store_true")
+    _add_table_opts(p_screen)
     p_screen.add_argument("--crno-map", help="brn,crno[,corp_name] CSV")
     p_screen.add_argument(
         "--no-name-lookup",
@@ -371,7 +415,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_resolve = sub.add_parser("resolve", help="기업명 → 법인등록번호 매핑 CSV 생성")
     p_resolve.add_argument("input", help="`사업자등록번호,기업명` 2열 CSV")
     p_resolve.add_argument("-o", "--output")
-    p_resolve.add_argument("--no-checksum", action="store_true")
+    _add_table_opts(p_resolve)
+    p_resolve.add_argument("--refresh", action="store_true", help="이미 확보된 법인등록번호도 다시 조회")
     p_resolve.add_argument("--limit", type=int, help="앞 N건만 조회")
     p_resolve.add_argument("--progress", type=int, default=100, help="N건마다 진행 상황 출력")
     _add_common(p_resolve)

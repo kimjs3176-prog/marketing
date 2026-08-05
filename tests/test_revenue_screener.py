@@ -12,11 +12,15 @@ from app.services.revenue_screener import (
     ScreeningError,
     _iter_items,
     _loads,
+    detect_columns,
     has_valid_checksum,
     load_brn_table,
+    load_company_table,
+    looks_like_personal_id,
     normalize_brn_list,
     normalize_corp_name,
     parse_brn,
+    parse_crno,
     select_qualified,
     summarize,
 )
@@ -64,7 +68,7 @@ class TestParseBrn:
             ("", "BLANK"),
             ("   ", "BLANK"),
             ("개인", "NON_BRN_MARKER"),
-            ("개인(이름)", "NON_BRN_MARKER"),
+            ("개인(홍길동)", "NON_BRN_MARKER"),
             ("확인불가", "NON_BRN_MARKER"),
             ("무상", "NON_BRN_MARKER"),
             ("245-96-0120", "BAD_LENGTH"),
@@ -584,6 +588,236 @@ class TestLoadBrnTable:
         _, names = load_brn_table(str(path))
 
         assert names == {"6138300570": "예시테크"}
+
+
+# 주민등록번호 형식만 갖춘 합성 표본. 실제 개인의 번호를 저장하지 않기 위해
+# 일련번호를 0으로 고정했다. 원본 마스터 데이터에서 발견된 값들과 같은 구조
+# (유효한 YYMMDD + 성별자리 1~4 + 검증식 통과)를 가진다.
+SYNTHETIC_PERSONAL_IDS = (
+    "9912311000007",
+    "8801012000009",
+    "7706301000008",
+    "6608152000005",
+)
+
+
+class TestPersonalIdDetection:
+    @pytest.mark.parametrize("value", SYNTHETIC_PERSONAL_IDS)
+    def test_flags_personal_ids(self, value):
+        assert looks_like_personal_id(value)
+
+    # 같은 칸의 실제 법인등록번호들. 하나도 걸리면 안 된다.
+    @pytest.mark.parametrize(
+        "value",
+        [
+            "1301110006246",  # 삼성전자
+            "1101112727472",  # 주식회사엔그린
+            "1101114362482",  # (주)팜한농
+            "1341110000880",  # (주)대성미생물연구소
+            "1648110035671",  # 선바이오(주)
+            "2201110030182",  # (주)제주사랑농수산
+            "1101110008200",  # 동성제약(주)
+        ],
+    )
+    def test_does_not_flag_real_corporate_ids(self, value):
+        assert not looks_like_personal_id(value)
+
+    @pytest.mark.parametrize("value", ["", "991231100000", "99123110000070", "991231100000a"])
+    def test_rejects_malformed(self, value):
+        assert not looks_like_personal_id(value)
+
+
+class TestParseCrno:
+    @pytest.mark.parametrize(
+        "raw,expected",
+        [
+            ("110111-0006246", "1101110006246"),
+            ("1101110006246", "1101110006246"),
+            ("  130111-0006246  ", "1301110006246"),
+            ("1349110103125", "1349110103125"),
+        ],
+    )
+    def test_normalizes_valid_forms(self, raw, expected):
+        parsed = parse_crno(raw)
+        assert parsed.ok
+        assert parsed.crno == expected
+
+    @pytest.mark.parametrize(
+        "raw,reason",
+        [
+            ("", "BLANK"),
+            ("   ", "BLANK"),
+            ("확인불가", "NON_CRNO_MARKER"),
+            ("무상", "NON_CRNO_MARKER"),
+            ("141211-014578", "BAD_LENGTH"),
+            ("20534372", "BAD_LENGTH"),
+            ("0000000000000", "ALL_ZERO"),
+            ("991231-1000007", "PERSONAL_ID"),
+        ],
+    )
+    def test_rejects_with_reason(self, raw, reason):
+        parsed = parse_crno(raw)
+        assert not parsed.ok
+        assert parsed.reason == reason
+
+    def test_personal_id_can_be_forced_through(self):
+        parsed = parse_crno("991231-1000007", allow_personal_id=True)
+        assert parsed.crno == "9912311000007"
+
+
+class TestDetectColumns:
+    def test_reads_master_data_headers(self):
+        # 실제 마스터 데이터의 헤더. 괄호 주석이 붙어 있다.
+        header = ["업체명(마스터 데이터)", "사업자번호", "법인등록번호(마스터 데이터)"]
+        assert detect_columns(header) == {"corp_name": 0, "brn": 1, "crno": 2}
+
+    def test_reads_alternate_names_and_order(self):
+        header = ["법인등록번호", "사업자등록번호", "기업명"]
+        assert detect_columns(header) == {"crno": 0, "brn": 1, "corp_name": 2}
+
+    def test_corporate_id_does_not_absorb_business_id(self):
+        # "법인등록번호"를 먼저 잡아야 "사업자" 규칙에 걸리지 않는다.
+        columns = detect_columns(["사업자번호", "법인등록번호"])
+        assert columns["brn"] == 0
+        assert columns["crno"] == 1
+
+    def test_returns_empty_without_business_id_column(self):
+        assert detect_columns(["이름", "주소"]) == {}
+
+    def test_english_headers(self):
+        assert detect_columns(["brn", "corp_name", "crno"]) == {
+            "brn": 0,
+            "corp_name": 1,
+            "crno": 2,
+        }
+
+
+MASTER_TSV = "\t".join(["업체명(마스터 데이터)", "사업자번호", "법인등록번호(마스터 데이터)"]) + "\n"
+
+
+class TestLoadCompanyTable:
+    def _write(self, tmp_path, body, name="master.tsv"):
+        path = tmp_path / name
+        path.write_text(MASTER_TSV + body, encoding="utf-8")
+        return str(path)
+
+    def test_reads_three_columns(self, tmp_path):
+        path = self._write(
+            tmp_path,
+            "주식회사엔그린\t120-86-49766\t110111-2727472\n"
+            "경상국립대학교\t613-83-00570\t\n",
+        )
+        table = load_company_table(path)
+
+        assert table.columns == {"corp_name": 0, "brn": 1, "crno": 2}
+        assert table.report.unique == ["1208649766", "6138300570"]
+        assert table.names["1208649766"] == "주식회사엔그린"
+        assert table.crnos == {"1208649766": "1101112727472"}
+
+    def test_recovers_quoted_field_containing_tab(self, tmp_path):
+        # 원본에 `"\t635-86-03151"` 형태가 있어 단순 split 으로는 컬럼이 밀린다.
+        path = self._write(tmp_path, '표본상회\t"\t635-86-03151"\t110111-2727472\n')
+        table = load_company_table(path)
+
+        assert table.report.unique == ["6358603151"]
+        assert table.names["6358603151"] == "표본상회"
+
+    def test_personal_id_in_crno_column_is_excluded(self, tmp_path):
+        path = self._write(tmp_path, "표본상회\t635-86-03151\t991231-1000007\n")
+        table = load_company_table(path)
+
+        assert table.report.unique == ["6358603151"]
+        assert table.crnos == {}
+        assert table.crno_reason_counts == {"PERSONAL_ID": 1}
+
+    def test_personal_id_override(self, tmp_path):
+        path = self._write(tmp_path, "표본상회\t635-86-03151\t991231-1000007\n")
+        table = load_company_table(path, allow_personal_id=True)
+
+        assert table.crnos == {"6358603151": "9912311000007"}
+
+    def test_blank_crno_is_not_reported_as_a_problem(self, tmp_path):
+        path = self._write(tmp_path, "경상국립대학교\t613-83-00570\t\n")
+        table = load_company_table(path)
+
+        assert table.crno_reason_counts == {}
+
+    def test_invalid_brn_rows_never_expose_their_crno(self, tmp_path):
+        # 사업자번호가 9자리로 무효 → 그 행의 주민등록번호가 조회 대상에 들어가면 안 된다.
+        path = self._write(tmp_path, "표본정육\t245-96-0120\t880101-2000009\n")
+        table = load_company_table(path)
+
+        assert table.report.unique == []
+        assert table.crnos == {}
+        assert table.crno_rejected == []
+
+    def test_duplicate_brn_keeps_first_name_but_fills_crno_from_any_row(self, tmp_path):
+        # 같은 기업이 여러 번 나오면서 법인등록번호가 일부 행에만 적혀 있는 경우.
+        path = self._write(
+            tmp_path,
+            "미래UT\t135-07-96043\t\n"
+            "미래UT 2공장\t135-07-96043\t110111-2727472\n",
+        )
+        table = load_company_table(path)
+
+        assert table.report.unique == ["1350796043"]
+        assert table.names["1350796043"] == "미래UT"
+        assert table.crnos == {"1350796043": "1101112727472"}
+        assert table.crno_reason_counts == {}
+
+    def test_rejection_counts_are_per_company_not_per_row(self, tmp_path):
+        # 같은 기업이 20번 반복돼도 사유는 1건으로 센다.
+        path = self._write(tmp_path, "표본상회\t635-86-03151\t991231-1000007\n" * 20)
+        table = load_company_table(path)
+
+        assert table.crno_reason_counts == {"PERSONAL_ID": 1}
+
+    def test_specific_reason_beats_blank(self, tmp_path):
+        path = self._write(
+            tmp_path,
+            "표본상회\t635-86-03151\t\n"
+            "표본상회\t635-86-03151\t991231-1000007\n",
+        )
+        table = load_company_table(path)
+
+        assert table.crno_reason_counts == {"PERSONAL_ID": 1}
+
+    def test_falls_back_to_positional_without_header(self, tmp_path):
+        path = tmp_path / "plain.csv"
+        path.write_text("613-83-00570,경상국립대학교\n", encoding="utf-8")
+        table = load_company_table(str(path))
+
+        assert table.columns == {"brn": 0, "corp_name": 1}
+        assert table.names == {"6138300570": "경상국립대학교"}
+
+    def test_empty_file(self, tmp_path):
+        path = tmp_path / "empty.tsv"
+        path.write_text("", encoding="utf-8")
+        table = load_company_table(str(path))
+
+        assert table.report.unique == []
+        assert table.crnos == {}
+
+    def test_to_resolver_carries_name_and_source(self, tmp_path):
+        path = self._write(tmp_path, "주식회사엔그린\t120-86-49766\t110111-2727472\n")
+        identity = load_company_table(path).to_resolver().resolve("1208649766")
+
+        assert identity.crno == "1101112727472"
+        assert identity.corp_name == "주식회사엔그린"
+        assert identity.matched_by == "csv"
+
+    def test_table_resolver_feeds_screener(self, tmp_path):
+        path = self._write(tmp_path, "주식회사엔그린\t120-86-49766\t110111-2727472\n")
+        table = load_company_table(path)
+        screener = _screener(
+            financial_client=FakeFinancialClient({"1101112727472": {2025: 8_000_000_000}}),
+            resolver=table.to_resolver(),
+        )
+        row = screener.screen(table.report.unique)[0]
+
+        assert row.meets_threshold is True
+        assert row.revenue_eok == 80.0
+        assert row.corp_name == "주식회사엔그린"
 
 
 class TestCrnoResolver:
