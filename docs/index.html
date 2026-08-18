@@ -74,7 +74,7 @@
           <a href="#about" class="px-3 py-2 rounded-lg hover:bg-leaf-100 transition">행사소개</a>
           <a href="#info" class="px-3 py-2 rounded-lg hover:bg-leaf-100 transition">행사정보</a>
           <a href="#program" class="px-3 py-2 rounded-lg hover:bg-leaf-100 transition">프로그램</a>
-          <a href="#patents" class="px-3 py-2 rounded-lg hover:bg-leaf-100 transition">소개기술</a>
+          <a href="#patents" class="px-3 py-2 rounded-lg hover:bg-leaf-100 transition">소개특허</a>
           <a href="#contact" class="px-3 py-2 rounded-lg hover:bg-leaf-100 transition">문의</a>
         </div>
         <!-- EDIT: 사전등록 URL을 href="#register" 대신 실제 신청 링크(구글폼 등)로 교체하세요 -->
@@ -326,7 +326,7 @@
       <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div class="max-w-2xl">
           <p class="text-sm font-bold tracking-widest text-sky2-500 reveal">TECHNOLOGY</p>
-          <h2 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-leaf-950 keep reveal">소개 유망기술</h2>
+          <h2 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-leaf-950 keep reveal">소개 특허</h2>
           <p class="mt-4 text-leaf-800/70 keep reveal">이번 설명회에서 소개하는 치유농업·식량농업·스마트농업 분야 유망기술입니다. 관심 기술은 사전등록 후 1:1 상담을 신청하세요.</p>
         </div>
         <div class="flex flex-wrap gap-2 reveal" id="patent-filters"></div>
@@ -336,7 +336,8 @@
       <div id="patent-grid" class="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 
       <p class="mt-10 text-center text-sm text-leaf-600 keep">
-        * 상기 기술 정보는 예시이며, 실제 소개 기술 목록으로 교체하여 사용하세요.
+        각 카드의 <span class="font-semibold text-leaf-800">KIPRIS 상세보기</span>를 누르면 특허 상세정보(KIPRIS)로 연결됩니다.
+        등록번호가 없는 건은 출원·심사 단계입니다.
       </p>
     </div>
   </section>
@@ -419,7 +420,7 @@
         <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-leaf-700">
           <a href="#about" class="hover:text-leaf-900 transition">행사소개</a>
           <a href="#info" class="hover:text-leaf-900 transition">행사정보</a>
-          <a href="#patents" class="hover:text-leaf-900 transition">소개기술</a>
+          <a href="#patents" class="hover:text-leaf-900 transition">소개특허</a>
           <a href="#register" class="hover:text-leaf-900 transition">사전등록</a>
           <a href="#contact" class="hover:text-leaf-900 transition">문의</a>
         </div>
@@ -433,58 +434,109 @@
   <!-- ============================= SCRIPT ============================= -->
   <script>
     /* =========================================================
-       소개 유망기술 데이터 — 아래 배열만 수정하면 카드가 자동 갱신됩니다.
+       소개 특허 데이터 — 아래 배열만 수정하면 카드가 자동 갱신됩니다.
        category 값(치유농업 / 식량농업 / 스마트농업)을 기준으로
        상단 필터 칩이 자동 생성됩니다.
+       - appNo : 출원번호(하이픈 포함). KIPRIS 상세보기 링크는 이 값의
+                 숫자만 추출해 자동 생성됩니다.
+       - regNo : 등록번호(없으면 null → '출원·심사 단계'로 표시)
        ========================================================= */
     const PATENTS = [
       {
-        title: "스마트팜 생육환경 자동제어 시스템",
-        category: "스마트농업",
-        appNo: "10-2026-000000",
-        applicant: "공공연구기관",
-        icon: "solar:cpu-bold-duotone",
-        summary: "센서 데이터 기반으로 온·습도와 관수를 자동 제어해 작물 생산성과 품질을 높이는 재배 자동화 기술."
+        title: "친환경 식생구조물의 시공방법",
+        category: "치유농업",
+        appNo: "10-2022-0070683",
+        regNo: "10-2516134",
+        icon: "solar:buildings-2-bold-duotone",
+        summary: "식물이 자라는 친환경 식생구조물을 안정적으로 시공하는 방법으로, 도시 녹화·경관 조성에 활용됩니다."
       },
       {
-        title: "자율주행 기반 농작업 로봇 제어기술",
-        category: "스마트농업",
-        appNo: "10-2026-000000",
-        applicant: "공공연구기관",
-        icon: "solar:routing-bold-duotone",
-        summary: "위치 인식과 경로 계획 알고리즘으로 파종·방제 등 농작업을 자동 수행하는 로봇 제어 기술."
-      },
-      {
-        title: "식량작물 병해충 친환경 방제 조성물",
-        category: "식량농업",
-        appNo: "10-2026-000000",
-        applicant: "공공연구기관",
-        icon: "solar:leaf-bold-duotone",
-        summary: "천연물 유래 성분을 활용해 화학농약을 대체하는 친환경 병해충 방제 조성물 및 제조 방법."
-      },
-      {
-        title: "식량작물 신선도 유지 포장·저장 기술",
-        category: "식량농업",
-        appNo: "10-2026-000000",
-        applicant: "공공연구기관",
+        title: "다목적 도시농업용 모듈형 플랜터",
+        category: "치유농업",
+        appNo: "10-2021-0116036",
+        regNo: "10-2791473",
         icon: "solar:box-bold-duotone",
-        summary: "포장 소재와 저장 조건 제어를 통해 수확 후 농산물의 신선도와 유통기한을 연장하는 기술."
+        summary: "필요에 따라 조립·확장할 수 있는 모듈형 플랜터로, 도시농업과 실내외 재배 공간에 두루 적용됩니다."
       },
       {
-        title: "원예활동 기반 스트레스 완화 치유 프로그램",
+        title: "식물꽂이용 보조장치",
         category: "치유농업",
-        appNo: "10-2026-000000",
-        applicant: "공공연구기관",
+        appNo: "10-2024-0108899",
+        regNo: "10-2950220",
+        icon: "solar:leaf-bold-duotone",
+        summary: "식물을 안정적으로 고정·지지하는 원예 보조장치로, 치유농업·원예활동 프로그램에 활용됩니다."
+      },
+      {
+        title: "액티브 시니어를 위한 동물교감치유 활동수행 방법",
+        category: "치유농업",
+        appNo: "10-2025-0164046",
+        regNo: null,
         icon: "solar:heart-pulse-bold-duotone",
-        summary: "원예·재배 활동을 활용해 스트레스를 완화하고 정서 안정을 돕는 치유농업 프로그램 및 운영 방법."
+        summary: "활동적인 노년층을 대상으로 동물과의 교감을 통해 정서적·신체적 건강을 돕는 치유 활동 방법."
       },
       {
-        title: "실내식물 활용 공기질 개선·정서안정 기술",
+        title: "동물교감치유 활동 수행 방법",
         category: "치유농업",
-        appNo: "10-2026-000000",
-        applicant: "공공연구기관",
+        appNo: "10-2024-0175191",
+        regNo: "10-2820159",
+        icon: "solar:heart-bold-duotone",
+        summary: "동물과의 교감을 활용해 스트레스 완화와 정서 안정을 유도하는 표준화된 치유 활동 수행 방법."
+      },
+      {
+        title: "식품의 부패 감지용 필름형 지시계 및 제조방법",
+        category: "스마트농업",
+        appNo: "10-2023-0186050",
+        regNo: null,
+        icon: "solar:test-tube-bold-duotone",
+        summary: "색 변화로 식품의 부패·신선도를 눈으로 확인할 수 있는 필름형 지시계 및 그 제조 방법."
+      },
+      {
+        title: "향기물질 전국체를 이용한 향기증진 증류주 생산방법",
+        category: "식량농업",
+        appNo: "10-2024-0112960",
+        regNo: "10-2778616",
+        icon: "solar:bottle-bold-duotone",
+        summary: "향기 성분을 효과적으로 이전·강화해 풍미를 높인 증류주를 생산하는 제조 방법."
+      },
+      {
+        title: "신규 카자흐스타니아 헬레니카 HY2022 균주 및 무알코올 음료 제조방법",
+        category: "식량농업",
+        appNo: "10-2022-0173134",
+        regNo: "10-2944656",
+        icon: "solar:cup-hot-bold-duotone",
+        summary: "신규 발효 균주(HY2022)를 활용해 알코올 없이 발효 풍미를 구현한 무알코올 음료 제조 방법."
+      },
+      {
+        title: "미백 및 기능성분이 강화된 발효 감초의 제조방법",
+        category: "식량농업",
+        appNo: "10-2021-0173377",
+        regNo: "10-2839569",
         icon: "solar:health-bold-duotone",
-        summary: "실내 식물 배치와 관리 기법으로 공기질을 개선하고 재실자의 정서 안정을 유도하는 기술."
+        summary: "발효 공정으로 미백·기능 성분을 강화한 감초 소재의 제조 방법으로, 식품·화장품 원료로 활용됩니다."
+      },
+      {
+        title: "젖산균 발효 황기 잎 추출물 함유 항산화 기능성 조성물",
+        category: "식량농업",
+        appNo: "10-2019-0166923",
+        regNo: "10-2390837",
+        icon: "solar:leaf-bold-duotone",
+        summary: "젖산균으로 발효시킨 황기 잎 추출물을 유효성분으로 하는 항산화용 기능성 조성물."
+      },
+      {
+        title: "발효 황기·삼채 첨가 발아흑미(흑미) 양갱 제조방법",
+        category: "식량농업",
+        appNo: "10-2023-0137710",
+        regNo: null,
+        icon: "solar:chef-hat-bold-duotone",
+        summary: "발효 황기 또는 삼채를 더해 기능성과 풍미를 높인 발아흑미·흑미 양갱의 제조 방법."
+      },
+      {
+        title: "상온 장기 유통이 가능한 떡볶이용 떡 제조방법",
+        category: "식량농업",
+        appNo: "10-2019-0107717",
+        regNo: "10-2392239",
+        icon: "solar:chef-hat-bold-duotone",
+        summary: "상온에서도 장기간 유통·보관이 가능하도록 물성을 개선한 떡볶이용 떡의 제조 방법."
       }
     ];
 
@@ -493,9 +545,18 @@
     const categories = ['전체', ...Array.from(new Set(PATENTS.map(p => p.category)))];
     let active = '전체';
 
+    // KIPRIS 특허 상세 링크 생성 (출원번호에서 숫자만 추출)
+    function kiprisUrl(p) {
+      const applno = (p.appNo || '').replace(/[^0-9]/g, '');
+      return 'https://www.kipris.or.kr/khome/detail/newWindow.do?right=kpat&applno=' + applno;
+    }
+
     function cardHTML(p) {
+      const reg = p.regNo
+        ? `<dd class="font-semibold text-leaf-800 tabular-nums">${p.regNo}</dd>`
+        : `<dd class="font-semibold text-sky2-600">출원·심사 단계</dd>`;
       return `
-        <article class="group reveal rounded-2xl border border-leaf-100 bg-leaf-50/60 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-leaf-200">
+        <article class="group reveal flex flex-col rounded-2xl border border-leaf-100 bg-leaf-50/60 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-leaf-200">
           <div class="flex items-start justify-between">
             <span class="grid place-items-center w-12 h-12 rounded-xl bg-gradient-to-br from-leaf-900 to-sky2-700 text-white">
               <iconify-icon icon="${p.icon}" class="text-2xl"></iconify-icon>
@@ -506,11 +567,17 @@
           <p class="mt-3 text-sm text-leaf-700/80 leading-relaxed keep">${p.summary}</p>
           <dl class="mt-5 pt-4 border-t border-leaf-100 space-y-1.5 text-sm">
             <div class="flex justify-between gap-2"><dt class="text-leaf-500">출원번호</dt><dd class="font-semibold text-leaf-800 tabular-nums">${p.appNo}</dd></div>
-            <div class="flex justify-between gap-2"><dt class="text-leaf-500">기술보유</dt><dd class="font-semibold text-leaf-800 keep">${p.applicant}</dd></div>
+            <div class="flex justify-between gap-2"><dt class="text-leaf-500">등록번호</dt>${reg}</div>
           </dl>
-          <a href="#register" class="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-leaf-700 group-hover:text-leaf-900 transition">
-            상담 신청 <iconify-icon icon="solar:arrow-right-linear" class="transition-transform group-hover:translate-x-0.5"></iconify-icon>
-          </a>
+          <div class="mt-auto pt-5 flex items-center justify-between gap-2">
+            <a href="${kiprisUrl(p)}" target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1.5 text-sm font-bold text-leaf-700 hover:text-leaf-900 transition">
+              <iconify-icon icon="solar:document-text-bold"></iconify-icon>
+              KIPRIS 상세보기
+              <iconify-icon icon="solar:arrow-right-up-linear" class="text-xs"></iconify-icon>
+            </a>
+            <a href="#register" class="text-xs font-semibold text-sky2-600 hover:text-sky2-700 transition">상담 신청</a>
+          </div>
         </article>`;
     }
 
