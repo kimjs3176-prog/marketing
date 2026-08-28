@@ -52,9 +52,6 @@
 
     .orb { position: absolute; border-radius: 9999px; filter: blur(80px); pointer-events: none; will-change: transform; }
     @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-22px) } }
-    @keyframes floatSm { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
-    @keyframes pulseGlow { 0%,100% { opacity: .55 } 50% { opacity: 1 } }
-    @keyframes spinSlow { to { transform: rotate(360deg) } }
     .float-a { animation: float 9s ease-in-out infinite; }
     .float-b { animation: float 11s ease-in-out infinite; }
 
@@ -95,34 +92,11 @@
 
     /* 접근성: reduced-motion 존중 */
     @media (prefers-reduced-motion: reduce) {
-      *, .reveal, .float-a, .float-b, .sphere-glow, .sphere-dots, .orb { animation: none !important; }
+      *, .reveal, .float-a, .float-b, .orb { animation: none !important; }
       .reveal { opacity: 1 !important; }
       html { scroll-behavior: auto; }
     }
 
-    /* ===== 포스터 재현: 스마트 저장 스피어 ===== */
-    .sphere-wrap { position: relative; margin-inline: auto; }
-    .sphere-glow { position:absolute; inset:-14%; border-radius:9999px;
-      background: radial-gradient(circle at 50% 42%, rgba(63,181,164,0.38), rgba(6,32,29,0) 68%);
-      animation: pulseGlow 5s ease-in-out infinite; }
-    .sphere-ring { position:absolute; inset:2%; border-radius:9999px; border:2px solid rgba(201,162,74,0.45);
-      box-shadow: 0 0 46px rgba(201,162,74,0.22), inset 0 0 60px rgba(201,162,74,0.10); }
-    .sphere-dots { position:absolute; inset:-3%; border-radius:9999px;
-      background: repeating-conic-gradient(rgba(201,162,74,0.0) 0deg 10deg, rgba(201,162,74,0.28) 10deg 10.6deg);
-      -webkit-mask: radial-gradient(circle, transparent 47%, #000 48%, #000 50%, transparent 51%);
-              mask: radial-gradient(circle, transparent 47%, #000 48%, #000 50%, transparent 51%);
-      animation: spinSlow 60s linear infinite; }
-    .sphere-core { position:absolute; inset:9%; border-radius:9999px; overflow:hidden;
-      background: linear-gradient(180deg, rgba(31,72,66,0.55) 0%, rgba(10,46,42,0.8) 55%, rgba(6,32,29,0.9) 100%);
-      box-shadow: inset 0 2px 14px rgba(255,255,255,0.10), inset 0 -30px 60px rgba(0,0,0,0.5); }
-    .sphere-core::after { content:""; position:absolute; left:22%; top:10%; width:34%; height:22%; border-radius:9999px;
-      background: radial-gradient(circle, rgba(255,255,255,0.28), rgba(255,255,255,0) 70%); filter: blur(6px); }
-    .chamber-div { position:absolute; left:8%; right:8%; height:1px; background:linear-gradient(90deg, transparent, rgba(201,162,74,0.5), transparent); }
-    .beam { position:absolute; left:50%; top:12%; transform:translateX(-50%); width:16%; height:60%;
-      background: linear-gradient(to bottom, rgba(114,209,194,0.55), rgba(114,209,194,0)); filter: blur(7px); }
-    .badge-float { position:absolute; width:44px; height:44px; border-radius:9999px; display:grid; place-items:center;
-      background: rgba(6,32,29,0.7); border:1px solid rgba(255,255,255,0.12); backdrop-filter: blur(6px);
-      box-shadow: 0 8px 24px -10px rgba(0,0,0,0.6); }
   </style>
 </head>
 <body class="text-teal2-50 antialiased overflow-x-hidden">
@@ -154,7 +128,7 @@
   </header>
 
   <!-- ===== HERO ===== -->
-  <section id="top" class="relative flex items-center overflow-hidden pt-24 pb-20 min-h-[100dvh]">
+  <section id="top" class="relative overflow-hidden pt-32 pb-16 md:pb-20">
     <div class="absolute inset-0" style="background:
       radial-gradient(65% 60% at 50% 18%, rgba(63,181,164,0.14) 0%, rgba(6,32,29,0) 60%),
       linear-gradient(180deg, #06201d 0%, #0a2e2a 55%, #0d3833 100%);"></div>
@@ -174,32 +148,8 @@
         <span class="font-display rounded-full border border-teal2-400/40 bg-teal2-400/10 text-teal2-100 text-sm font-semibold px-4 py-1.5">SMART AGRI-FRESH TECH</span>
       </div>
 
-      <!-- ===== 포스터 재현: 스마트 저장 스피어 ===== -->
-      <div class="reveal in sphere-wrap w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] md:w-[400px] md:h-[400px] my-6 md:my-8" style="--i:5" aria-hidden="true">
-        <div class="sphere-glow"></div>
-        <div class="sphere-dots"></div>
-        <div class="sphere-ring"></div>
-        <div class="sphere-core">
-          <div class="chamber-div" style="top:33%"></div>
-          <div class="chamber-div" style="top:66%"></div>
-          <div class="beam"></div>
-          <!-- 상단 챔버: 가공 -->
-          <iconify-icon icon="solar:fire-bold-duotone" class="absolute text-gold-300/90 text-2xl" style="left:26%;top:17%"></iconify-icon>
-          <iconify-icon icon="solar:test-tube-bold-duotone" class="absolute text-gold-300/90 text-2xl" style="right:26%;top:17%"></iconify-icon>
-          <!-- 중단 챔버: 품질/데이터 -->
-          <iconify-icon icon="solar:chart-2-bold-duotone" class="absolute text-teal2-100 text-3xl left-1/2 -translate-x-1/2" style="top:43%"></iconify-icon>
-          <!-- 하단 챔버: 저장/채소 -->
-          <iconify-icon icon="solar:leaf-bold-duotone" class="absolute text-teal2-200 text-2xl" style="left:30%;top:76%"></iconify-icon>
-          <iconify-icon icon="solar:snowflake-bold-duotone" class="absolute text-teal2-200 text-2xl" style="right:30%;top:76%"></iconify-icon>
-        </div>
-        <!-- 떠 있는 콜드체인 배지 -->
-        <div class="badge-float float-b" style="top:6%;left:-2%"><iconify-icon icon="solar:snowflake-bold-duotone" class="text-teal2-200 text-xl"></iconify-icon></div>
-        <div class="badge-float float-a" style="top:42%;right:-4%"><iconify-icon icon="solar:temperature-bold-duotone" class="text-gold-300 text-xl"></iconify-icon></div>
-        <div class="badge-float float-b" style="bottom:6%;left:6%"><iconify-icon icon="solar:waterdrop-bold-duotone" class="text-teal2-300 text-xl"></iconify-icon></div>
-      </div>
-
       <!-- 일시/장소 double-bezel -->
-      <div class="reveal in grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto mb-9" style="--i:6">
+      <div class="reveal in grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto mt-10 mb-8" style="--i:6">
         <div class="rounded-[1.75rem] bg-white/[0.05] ring-1 ring-white/10 p-1.5">
           <div class="bezel-inner rounded-[calc(1.75rem-0.375rem)] bg-teal2-900/60 backdrop-blur px-5 py-5 flex items-center gap-4 text-left">
             <iconify-icon icon="solar:calendar-bold-duotone" class="text-gold-400 text-3xl shrink-0"></iconify-icon>
@@ -242,9 +192,9 @@
   </section>
 
   <!-- ===== PROGRAM ===== -->
-  <section id="about" class="relative py-24 md:py-32 bg-teal2-950">
+  <section id="about" class="relative py-16 md:py-24 bg-teal2-950">
     <div class="max-w-6xl mx-auto px-5">
-      <div class="text-center max-w-2xl mx-auto mb-14">
+      <div class="text-center max-w-2xl mx-auto mb-10">
         <span class="reveal inline-block rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.15em] font-medium bg-gold-500/10 text-gold-300 mb-4">Program</span>
         <h2 class="reveal text-3xl md:text-4xl font-bold mb-4 keep" style="--i:1">행사 프로그램</h2>
         <p class="reveal text-teal2-200 keep leading-snug" style="--i:2">농축산물의 가공부터 저장까지, 국립농업과학원의 특허기술을 연구자가 직접 소개하고 수요기업과 연결합니다.</p>
@@ -283,7 +233,7 @@
   </section>
 
   <!-- ===== EVENT INFO ===== -->
-  <section id="info" class="py-24 md:py-32">
+  <section id="info" class="py-16 md:py-24">
     <div class="max-w-5xl mx-auto px-5">
       <div class="reveal relative rounded-[2rem] bg-white/[0.05] ring-1 ring-white/10 p-1.5">
         <span class="ticks"></span>
@@ -302,7 +252,7 @@
   </section>
 
   <!-- ===== TECH GRID ===== -->
-  <section id="tech" class="relative py-24 md:py-32 bg-teal2-950 overflow-hidden">
+  <section id="tech" class="relative py-16 md:py-24 bg-teal2-950 overflow-hidden">
     <div class="orb float-b" style="width:400px;height:400px;top:10%;right:-140px;background:rgba(201,162,74,0.10);"></div>
     <div class="max-w-6xl mx-auto px-5 relative">
       <div class="text-center max-w-2xl mx-auto mb-12">
@@ -319,7 +269,7 @@
   </section>
 
   <!-- ===== LOCATION / 오시는 길 ===== -->
-  <section id="location" class="py-24 md:py-32">
+  <section id="location" class="py-16 md:py-24">
     <div class="max-w-5xl mx-auto px-5">
       <div class="text-center max-w-2xl mx-auto mb-12">
         <span class="reveal inline-block rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.15em] font-medium bg-gold-500/10 text-gold-300 mb-4">Location</span>
@@ -377,7 +327,7 @@
   </section>
 
   <!-- ===== REGISTER ===== -->
-  <section id="register" class="relative py-28 overflow-hidden">
+  <section id="register" class="relative py-20 md:py-24 overflow-hidden">
     <div class="absolute inset-0" style="background:
       radial-gradient(70% 80% at 50% 50%, rgba(201,162,74,0.14) 0%, rgba(6,32,29,0) 60%),
       linear-gradient(180deg, #0d3833 0%, #06201d 100%);"></div>
@@ -396,7 +346,7 @@
   </section>
 
   <!-- ===== FOOTER ===== -->
-  <footer class="bg-teal2-950 py-14 border-t border-white/5">
+  <footer class="bg-teal2-950 py-12 border-t border-white/5">
     <div class="max-w-6xl mx-auto px-5 grid md:grid-cols-2 gap-8 items-center">
       <div>
         <p class="font-bold text-lg">농식품 테마기술 파트너링 <span class="text-gold-400 font-display">vol.02</span></p>
