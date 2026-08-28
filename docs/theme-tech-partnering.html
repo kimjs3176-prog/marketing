@@ -4,19 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>농식품 테마기술 파트너링 vol.02 — SMART AGRI-FRESH TECH</title>
-  <meta name="description" content="국립농업과학원·한국농업기술진흥원(KOAT) 주최 농식품 테마기술 파트너링 vol.02. 농축산 가공·안전, 디지털 품질측정, 정밀제어·저장 분야 유망 특허기술을 소개합니다. 2026. 9. 9.(수) 14:00 서울성암아트홀." />
+  <meta name="description" content="국립농업과학원·한국농업기술진흥원(KOAT) 주최 농식품 테마기술 파트너링 vol.02. 농축산 가공·안전, 디지털 품질측정, 정밀제어·저장 분야 특허기술을 소개합니다. 2026. 9. 9.(수) 14:00 서울성암아트홀." />
   <meta property="og:title" content="농식품 테마기술 파트너링 vol.02 — SMART AGRI-FRESH TECH" />
   <meta property="og:description" content="농식품의 미래, 기술로 잇다 — 2026. 9. 9.(수) 14:00 서울성암아트홀" />
   <meta property="og:type" content="website" />
-  <meta name="theme-color" content="#0a2e2a" />
+  <meta name="theme-color" content="#06201d" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
   <script src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['Pretendard', 'system-ui', 'sans-serif'] },
+          fontFamily: {
+            sans: ['Pretendard', 'system-ui', 'sans-serif'],
+            display: ['"Space Grotesk"', 'Pretendard', 'sans-serif'],
+          },
           colors: {
             teal2: {
               50: '#eefaf7', 100: '#d3f2ec', 200: '#a9e5da', 300: '#72d1c2',
@@ -34,196 +40,227 @@
   </script>
   <style>
     html { scroll-behavior: smooth; }
-    body { font-family: 'Pretendard', system-ui, sans-serif; }
+    body { font-family: 'Pretendard', system-ui, sans-serif; background: #06201d; }
     .keep { word-break: keep-all; }
-    .hero-bg {
-      background:
-        radial-gradient(60% 55% at 50% 30%, rgba(63,181,164,0.16) 0%, rgba(10,46,42,0) 60%),
-        radial-gradient(120% 90% at 80% 100%, rgba(201,162,74,0.14) 0%, rgba(10,46,42,0) 55%),
-        linear-gradient(180deg, #06201d 0%, #0a2e2a 45%, #0d3833 100%);
-    }
+    .font-display { font-family: 'Space Grotesk', 'Pretendard', sans-serif; }
+
+    /* Supanova motion signature */
+    .spring { transition: all .5s cubic-bezier(0.16, 1, 0.3, 1); }
+
     .gold-text {
-      background: linear-gradient(180deg, #f6ecd2 0%, #e0c47f 45%, #c9a24a 100%);
+      background: linear-gradient(180deg, #f6ecd2 0%, #e0c47f 48%, #c9a24a 100%);
       -webkit-background-clip: text; background-clip: text; color: transparent;
     }
-    .card-hover { transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease; }
-    .card-hover:hover { transform: translateY(-6px); box-shadow: 0 18px 40px -18px rgba(0,0,0,.55); border-color: rgba(201,162,74,.55); }
-    .chip { transition: all .2s ease; }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(1.5rem); } to { opacity: 1; transform: translateY(0); } }
-    .reveal { animation: fadeInUp .7s ease both; }
-    .grain::before {
-      content: ""; position: absolute; inset: 0; pointer-events: none;
-      background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
-      background-size: 22px 22px; opacity: .4;
+
+    /* mesh gradient orbs */
+    .orb { position: absolute; border-radius: 9999px; filter: blur(80px); pointer-events: none; will-change: transform; }
+    @keyframes float { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-22px) } }
+    .float-a { animation: float 9s ease-in-out infinite; }
+    .float-b { animation: float 11s ease-in-out infinite; }
+
+    /* scroll reveal */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(2rem); filter: blur(4px); }
+      to   { opacity: 1; transform: translateY(0);   filter: blur(0); }
     }
+    .reveal { opacity: 0; }
+    .reveal.in { animation: fadeInUp .7s cubic-bezier(0.16,1,0.3,1) both; animation-delay: calc(var(--i, 0) * 70ms); }
+
+    /* noise overlay */
+    .noise { position: fixed; inset: 0; z-index: 60; pointer-events: none; opacity: .035;
+      background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 3px 3px; }
+
+    .bezel-inner { box-shadow: inset 0 1px 1px rgba(255,255,255,0.10); }
+    .cta-glow:hover { box-shadow: 0 0 34px rgba(201,162,74,0.30); }
   </style>
 </head>
-<body class="bg-teal2-900 text-teal2-50 antialiased">
+<body class="text-teal2-50 antialiased overflow-x-hidden">
+  <div class="noise"></div>
 
-  <!-- ===== NAV ===== -->
-  <header class="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-teal2-950/70 border-b border-white/5">
-    <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
-      <a href="#top" class="flex items-center gap-2 font-bold tracking-tight">
-        <iconify-icon icon="solar:leaf-bold-duotone" class="text-gold-400 text-2xl"></iconify-icon>
-        <span class="text-teal2-50">테마기술 파트너링 <span class="text-gold-400">vol.02</span></span>
-      </a>
-      <nav class="hidden md:flex items-center gap-7 text-sm text-teal2-100">
-        <a href="#about" class="hover:text-gold-300 transition">행사소개</a>
-        <a href="#info" class="hover:text-gold-300 transition">행사정보</a>
-        <a href="#tech" class="hover:text-gold-300 transition">소개기술</a>
-        <a href="#register" class="inline-flex items-center gap-1.5 rounded-full bg-gold-500 text-teal2-950 font-semibold px-4 py-2 hover:bg-gold-400 transition">
-          <iconify-icon icon="solar:pen-new-square-bold"></iconify-icon> 참여신청
+  <!-- ===== FLOATING GLASS NAV ===== -->
+  <header class="fixed top-0 inset-x-0 z-50 flex justify-center px-4">
+    <nav class="mt-4 w-full max-w-4xl rounded-full backdrop-blur-xl bg-white/[0.06] border border-white/10 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.6)]">
+      <div class="px-5 h-14 flex items-center justify-between">
+        <a href="#top" class="flex items-center gap-2 font-bold tracking-tight text-[15px]">
+          <iconify-icon icon="solar:leaf-bold-duotone" class="text-gold-400 text-xl"></iconify-icon>
+          테마기술 파트너링 <span class="text-gold-400 font-display">vol.02</span>
         </a>
-      </nav>
-    </div>
+        <div class="hidden md:flex items-center gap-6 text-sm text-teal2-100">
+          <a href="#about" class="spring hover:text-gold-300">프로그램</a>
+          <a href="#info" class="spring hover:text-gold-300">행사정보</a>
+          <a href="#tech" class="spring hover:text-gold-300">소개기술</a>
+          <a href="#register" class="spring group inline-flex items-center gap-2 rounded-full bg-gold-500 text-teal2-950 font-semibold pl-4 pr-1.5 py-1.5 hover:scale-[1.03] active:scale-[0.98]">
+            참여신청
+            <span class="w-7 h-7 rounded-full bg-teal2-950/15 grid place-items-center">
+              <iconify-icon icon="solar:arrow-right-linear" class="spring group-hover:translate-x-0.5"></iconify-icon>
+            </span>
+          </a>
+        </div>
+        <a href="#register" class="md:hidden text-gold-400"><iconify-icon icon="solar:pen-new-square-bold" class="text-xl"></iconify-icon></a>
+      </div>
+    </nav>
   </header>
 
   <!-- ===== HERO ===== -->
-  <section id="top" class="hero-bg grain relative overflow-hidden pt-28 pb-20 md:pt-36 md:pb-28">
-    <div class="max-w-6xl mx-auto px-5 relative">
-      <div class="text-center reveal">
-        <p class="text-gold-300/90 tracking-[0.35em] text-xs md:text-sm mb-5">농 식 품 의　미 래 ,　기 술 로　잇 다</p>
-        <p class="text-teal2-200 text-sm md:text-base font-medium tracking-widest mb-4">NEXT-GEN FOOD TECH : PROCESSING TO STORAGE</p>
-        <h1 class="gold-text font-black leading-[1.05] text-5xl md:text-7xl mb-3 keep">농식품<br class="md:hidden" /> 테마기술 파트너링</h1>
-        <p class="text-teal2-100/90 text-lg md:text-2xl font-medium keep mb-8">기술이 지금, 농식품의 미래를 바꾼다</p>
+  <section id="top" class="relative min-h-[100dvh] flex items-center overflow-hidden">
+    <!-- background -->
+    <div class="absolute inset-0" style="background:
+      radial-gradient(65% 60% at 50% 20%, rgba(63,181,164,0.14) 0%, rgba(6,32,29,0) 60%),
+      linear-gradient(180deg, #06201d 0%, #0a2e2a 55%, #0d3833 100%);"></div>
+    <div class="orb float-a" style="width:520px;height:520px;top:-120px;left:50%;transform:translateX(-50%);background:rgba(63,181,164,0.20);"></div>
+    <div class="orb float-b" style="width:420px;height:420px;bottom:-140px;right:-80px;background:rgba(201,162,74,0.18);"></div>
+    <div class="orb float-a" style="width:360px;height:360px;bottom:-120px;left:-100px;background:rgba(39,151,136,0.16);"></div>
 
-        <div class="inline-flex flex-wrap items-center justify-center gap-2 mb-10">
-          <span class="rounded-full border border-gold-500/40 bg-gold-500/10 text-gold-200 text-sm font-semibold px-4 py-1.5">vol.02</span>
-          <span class="rounded-full border border-teal2-400/40 bg-teal2-400/10 text-teal2-100 text-sm font-semibold px-4 py-1.5">SMART AGRI-FRESH TECH</span>
-        </div>
+    <div class="relative max-w-5xl mx-auto px-5 py-28 text-center">
+      <p class="reveal in text-gold-300/90 tracking-[0.4em] text-[11px] md:text-xs mb-6" style="--i:0">농 식 품 의　미 래 ,　기 술 로　잇 다</p>
+      <p class="reveal in font-display text-teal2-200 text-xs md:text-sm tracking-[0.18em] mb-5" style="--i:1">NEXT-GEN FOOD TECH · PROCESSING TO STORAGE</p>
+      <h1 class="reveal in gold-text font-black leading-[1.06] text-[3.25rem] md:text-8xl mb-4 keep" style="--i:2">농식품<br class="md:hidden" /> 테마기술 파트너링</h1>
+      <p class="reveal in text-teal2-100/90 text-lg md:text-2xl font-medium keep mb-9" style="--i:3">기술이 지금, 농식품의 미래를 바꾼다</p>
 
-        <!-- 일시/장소 카드 -->
-        <div class="grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto mb-10">
-          <div class="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur p-5 text-left flex items-center gap-4">
-            <iconify-icon icon="solar:calendar-bold-duotone" class="text-gold-400 text-3xl shrink-0"></iconify-icon>
-            <div>
-              <p class="text-xs text-teal2-300 mb-1">일시</p>
-              <p class="text-lg font-bold">2026. 9. 9.(수) 14:00</p>
-            </div>
-          </div>
-          <div class="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur p-5 text-left flex items-center gap-4">
-            <iconify-icon icon="solar:map-point-wave-bold-duotone" class="text-gold-400 text-3xl shrink-0"></iconify-icon>
-            <div>
-              <p class="text-xs text-teal2-300 mb-1">장소</p>
-              <p class="text-lg font-bold">서울성암아트홀</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a href="#register" class="inline-flex items-center gap-2 rounded-full bg-gold-500 text-teal2-950 font-bold px-7 py-3.5 hover:bg-gold-400 transition shadow-lg shadow-gold-500/20">
-            <iconify-icon icon="solar:pen-new-square-bold"></iconify-icon> 참여 신청하기
-          </a>
-          <a href="#tech" class="inline-flex items-center gap-2 rounded-full border border-white/15 text-teal2-50 font-semibold px-7 py-3.5 hover:border-gold-400/60 hover:text-gold-200 transition">
-            <iconify-icon icon="solar:widget-5-bold-duotone"></iconify-icon> 소개기술 살펴보기
-          </a>
-        </div>
-
-        <p class="mt-9 text-sm text-teal2-300">주최 · 주관 &nbsp;<span class="text-teal2-100 font-semibold">국립농업과학원</span> &nbsp;·&nbsp; <span class="text-teal2-100 font-semibold">한국농업기술진흥원(KOAT)</span></p>
+      <div class="reveal in inline-flex flex-wrap items-center justify-center gap-2 mb-11" style="--i:4">
+        <span class="font-display rounded-full border border-gold-500/40 bg-gold-500/10 text-gold-200 text-sm font-semibold px-4 py-1.5">vol.02</span>
+        <span class="font-display rounded-full border border-teal2-400/40 bg-teal2-400/10 text-teal2-100 text-sm font-semibold px-4 py-1.5">SMART AGRI-FRESH TECH</span>
       </div>
+
+      <!-- 일시/장소 double-bezel -->
+      <div class="reveal in grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto mb-10" style="--i:5">
+        <div class="rounded-[1.75rem] bg-white/[0.05] ring-1 ring-white/10 p-1.5">
+          <div class="bezel-inner rounded-[calc(1.75rem-0.375rem)] bg-teal2-900/60 backdrop-blur px-5 py-5 flex items-center gap-4 text-left">
+            <iconify-icon icon="solar:calendar-bold-duotone" class="text-gold-400 text-3xl shrink-0"></iconify-icon>
+            <div><p class="text-[11px] uppercase tracking-widest text-teal2-300 mb-1">Date</p><p class="text-lg font-bold">2026. 9. 9.(수) 14:00</p></div>
+          </div>
+        </div>
+        <div class="rounded-[1.75rem] bg-white/[0.05] ring-1 ring-white/10 p-1.5">
+          <div class="bezel-inner rounded-[calc(1.75rem-0.375rem)] bg-teal2-900/60 backdrop-blur px-5 py-5 flex items-center gap-4 text-left">
+            <iconify-icon icon="solar:map-point-wave-bold-duotone" class="text-gold-400 text-3xl shrink-0"></iconify-icon>
+            <div><p class="text-[11px] uppercase tracking-widest text-teal2-300 mb-1">Venue</p><p class="text-lg font-bold">서울성암아트홀</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal in flex flex-col sm:flex-row items-center justify-center gap-3" style="--i:6">
+        <a href="#register" class="spring cta-glow group inline-flex items-center gap-2 rounded-full bg-gold-500 text-teal2-950 font-bold pl-8 pr-2 py-2 hover:scale-[1.02] active:scale-[0.98]">
+          참여 신청하기
+          <span class="w-9 h-9 rounded-full bg-teal2-950/15 grid place-items-center">
+            <iconify-icon icon="solar:arrow-right-linear" class="text-lg spring group-hover:translate-x-1"></iconify-icon>
+          </span>
+        </a>
+        <a href="#tech" class="spring group inline-flex items-center gap-2 rounded-full border border-white/15 text-teal2-50 font-semibold pl-8 pr-2 py-2 hover:border-gold-400/60 hover:text-gold-200">
+          소개기술 살펴보기
+          <span class="w-9 h-9 rounded-full bg-white/5 grid place-items-center">
+            <iconify-icon icon="solar:arrow-down-linear" class="text-lg spring group-hover:translate-y-0.5"></iconify-icon>
+          </span>
+        </a>
+      </div>
+
+      <p class="reveal in mt-10 text-sm text-teal2-300 keep" style="--i:7">주최 · 주관 &nbsp;<span class="text-teal2-100 font-semibold">국립농업과학원</span> &nbsp;·&nbsp; <span class="text-teal2-100 font-semibold">한국농업기술진흥원(KOAT)</span></p>
     </div>
   </section>
 
-  <!-- ===== ABOUT / 프로그램 하이라이트 ===== -->
-  <section id="about" class="bg-teal2-950 border-y border-white/5 py-16 md:py-20">
+  <!-- ===== PROGRAM ===== -->
+  <section id="about" class="relative py-24 md:py-32 bg-teal2-950">
     <div class="max-w-6xl mx-auto px-5">
-      <div class="text-center max-w-2xl mx-auto mb-12">
-        <h2 class="text-2xl md:text-3xl font-bold mb-3">행사 프로그램</h2>
-        <p class="text-teal2-200 keep">농축산물의 가공부터 저장까지, 국립농업과학원의 유망 특허기술을 연구자가 직접 소개하고 수요기업과 연결합니다.</p>
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <span class="reveal inline-block rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.15em] font-medium bg-gold-500/10 text-gold-300 mb-4">Program</span>
+        <h2 class="reveal text-3xl md:text-4xl font-bold mb-4 keep" style="--i:1">행사 프로그램</h2>
+        <p class="reveal text-teal2-200 keep leading-snug" style="--i:2">농축산물의 가공부터 저장까지, 국립농업과학원의 특허기술을 연구자가 직접 소개하고 수요기업과 연결합니다.</p>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <iconify-icon icon="solar:test-tube-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
-          <h3 class="mt-3 font-bold text-lg">테마기술 소개</h3>
-          <p class="mt-1.5 text-sm text-teal2-200 keep">농축산 가공·안전, 디지털 품질측정·관리, 농산물 정밀제어·저장</p>
+        <div class="reveal spring rounded-[1.75rem] bg-white/[0.04] ring-1 ring-white/10 p-1.5 hover:-translate-y-1.5" style="--i:0">
+          <div class="bezel-inner rounded-[calc(1.75rem-0.375rem)] bg-teal2-900/50 p-6 h-full">
+            <iconify-icon icon="solar:test-tube-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
+            <h3 class="mt-4 font-bold text-lg">테마기술 소개</h3>
+            <p class="mt-2 text-sm text-teal2-200 keep leading-snug">농축산 가공·안전, 디지털 품질측정·관리, 농산물 정밀제어·저장</p>
+          </div>
         </div>
-        <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <iconify-icon icon="solar:microphone-large-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
-          <h3 class="mt-3 font-bold text-lg">전시 및 토크</h3>
-          <p class="mt-1.5 text-sm text-teal2-200 keep">연구자 토크콘서트, 기술영상 상영</p>
+        <div class="reveal spring rounded-[1.75rem] bg-white/[0.04] ring-1 ring-white/10 p-1.5 hover:-translate-y-1.5" style="--i:1">
+          <div class="bezel-inner rounded-[calc(1.75rem-0.375rem)] bg-teal2-900/50 p-6 h-full">
+            <iconify-icon icon="solar:microphone-large-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
+            <h3 class="mt-4 font-bold text-lg">전시 및 토크</h3>
+            <p class="mt-2 text-sm text-teal2-200 keep leading-snug">연구자 토크콘서트, 기술영상 상영</p>
+          </div>
         </div>
-        <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <iconify-icon icon="solar:users-group-rounded-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
-          <h3 class="mt-3 font-bold text-lg">네트워킹</h3>
-          <p class="mt-1.5 text-sm text-teal2-200 keep">연구자–기업 기술문의 및 매칭</p>
+        <div class="reveal spring rounded-[1.75rem] bg-white/[0.04] ring-1 ring-white/10 p-1.5 hover:-translate-y-1.5" style="--i:2">
+          <div class="bezel-inner rounded-[calc(1.75rem-0.375rem)] bg-teal2-900/50 p-6 h-full">
+            <iconify-icon icon="solar:users-group-rounded-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
+            <h3 class="mt-4 font-bold text-lg">네트워킹</h3>
+            <p class="mt-2 text-sm text-teal2-200 keep leading-snug">연구자–기업 기술문의 및 매칭</p>
+          </div>
         </div>
-        <div class="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-          <iconify-icon icon="solar:hand-shake-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
-          <h3 class="mt-3 font-bold text-lg">상담 및 지원</h3>
-          <p class="mt-1.5 text-sm text-teal2-200 keep">기술이전·지원사업 상담</p>
+        <div class="reveal spring rounded-[1.75rem] bg-white/[0.04] ring-1 ring-white/10 p-1.5 hover:-translate-y-1.5" style="--i:3">
+          <div class="bezel-inner rounded-[calc(1.75rem-0.375rem)] bg-teal2-900/50 p-6 h-full">
+            <iconify-icon icon="solar:hand-shake-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
+            <h3 class="mt-4 font-bold text-lg">상담 및 지원</h3>
+            <p class="mt-2 text-sm text-teal2-200 keep leading-snug">기술이전·지원사업 상담</p>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- ===== EVENT INFO ===== -->
-  <section id="info" class="py-16 md:py-20">
-    <div class="max-w-6xl mx-auto px-5">
-      <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-teal2-800/60 to-teal2-900/60 p-8 md:p-10 grid md:grid-cols-4 gap-6 text-center">
-        <div>
-          <iconify-icon icon="solar:calendar-mark-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
-          <p class="text-xs text-teal2-300 mt-2">일시</p>
-          <p class="font-bold mt-1">2026. 9. 9.(수)<br />오후 2시</p>
-        </div>
-        <div>
-          <iconify-icon icon="solar:map-point-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
-          <p class="text-xs text-teal2-300 mt-2">장소</p>
-          <p class="font-bold mt-1">서울성암아트홀</p>
-        </div>
-        <div>
-          <iconify-icon icon="solar:users-group-two-rounded-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
-          <p class="text-xs text-teal2-300 mt-2">참가대상</p>
-          <p class="font-bold mt-1">기술이전 희망기업<br />연구자·관계자</p>
-        </div>
-        <div>
-          <iconify-icon icon="solar:ticket-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
-          <p class="text-xs text-teal2-300 mt-2">참가비</p>
-          <p class="font-bold mt-1">무료<br />(사전등록)</p>
+  <section id="info" class="py-24 md:py-32">
+    <div class="max-w-5xl mx-auto px-5">
+      <div class="reveal rounded-[2rem] bg-white/[0.05] ring-1 ring-white/10 p-1.5">
+        <div class="bezel-inner rounded-[calc(2rem-0.375rem)] bg-gradient-to-br from-teal2-800/70 to-teal2-900/70 p-8 md:p-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div><iconify-icon icon="solar:calendar-mark-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
+            <p class="text-[11px] uppercase tracking-widest text-teal2-300 mt-3">일시</p><p class="font-bold mt-1 keep">2026. 9. 9.(수)<br />오후 2시</p></div>
+          <div><iconify-icon icon="solar:map-point-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
+            <p class="text-[11px] uppercase tracking-widest text-teal2-300 mt-3">장소</p><p class="font-bold mt-1">서울성암아트홀</p></div>
+          <div><iconify-icon icon="solar:users-group-two-rounded-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
+            <p class="text-[11px] uppercase tracking-widest text-teal2-300 mt-3">참가대상</p><p class="font-bold mt-1 keep">기술이전 희망기업<br />연구자·관계자</p></div>
+          <div><iconify-icon icon="solar:ticket-bold-duotone" class="text-gold-400 text-3xl"></iconify-icon>
+            <p class="text-[11px] uppercase tracking-widest text-teal2-300 mt-3">참가비</p><p class="font-bold mt-1 keep">무료<br />(사전등록)</p></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ===== TECH / 특허 그리드 ===== -->
-  <section id="tech" class="bg-teal2-950 border-y border-white/5 py-16 md:py-24">
-    <div class="max-w-6xl mx-auto px-5">
-      <div class="text-center max-w-2xl mx-auto mb-10">
-        <p class="text-gold-300 tracking-[0.25em] text-xs font-semibold mb-3">SMART AGRI-FRESH TECH</p>
-        <h2 class="text-2xl md:text-3xl font-bold mb-3">소개 특허기술 <span class="text-gold-400" id="techCount"></span></h2>
-        <p class="text-teal2-200 keep">국립농업과학원(농촌진흥청)이 보유한 농식품 가공·품질·저장 분야 특허기술입니다. 카드를 눌러 분야별로 살펴보세요.</p>
+  <!-- ===== TECH GRID ===== -->
+  <section id="tech" class="relative py-24 md:py-32 bg-teal2-950 overflow-hidden">
+    <div class="orb float-b" style="width:400px;height:400px;top:10%;right:-140px;background:rgba(201,162,74,0.10);"></div>
+    <div class="max-w-6xl mx-auto px-5 relative">
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="reveal inline-block rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.15em] font-medium bg-teal2-400/10 text-teal2-200 mb-4 font-display">Smart Agri-Fresh Tech</span>
+        <h2 class="reveal text-3xl md:text-4xl font-bold mb-4 keep" style="--i:1">소개 특허기술 <span class="text-gold-400 font-display" id="techCount"></span></h2>
+        <p class="reveal text-teal2-200 keep leading-snug" style="--i:2">국립농업과학원(농촌진흥청)이 보유한 농식품 가공·품질·저장 분야 특허기술입니다. 분야를 눌러 살펴보세요.</p>
       </div>
 
-      <!-- 필터 -->
-      <div id="filters" class="flex flex-wrap items-center justify-center gap-2.5 mb-10"></div>
-
-      <!-- 그리드 (3 x N) -->
+      <div id="filters" class="reveal flex flex-wrap items-center justify-center gap-2.5 mb-12" style="--i:3"></div>
       <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
 
-      <p class="mt-8 text-center text-xs text-teal2-400/80 keep">※ 특허 요약은 명세서 초록을 바탕으로 간략히 정리한 것으로, 상세 내용은 설명회 및 기술상담을 통해 확인하실 수 있습니다.</p>
+      <p class="mt-10 text-center text-xs text-teal2-400/80 keep">※ 특허 요약은 명세서 초록을 바탕으로 간략히 정리한 홍보용 요약입니다. 상세 내용은 설명회 및 기술상담을 통해 확인하실 수 있습니다.</p>
     </div>
   </section>
 
   <!-- ===== REGISTER ===== -->
-  <section id="register" class="hero-bg grain relative py-20">
-    <div class="max-w-3xl mx-auto px-5 text-center relative">
-      <h2 class="gold-text text-3xl md:text-4xl font-black mb-4">지금, 사전 참여를 신청하세요</h2>
-      <p class="text-teal2-100 keep mb-8">현장 상담·기술이전 매칭은 사전등록 참가자에게 우선 안내됩니다.</p>
-      <a href="#" class="inline-flex items-center gap-2 rounded-full bg-gold-500 text-teal2-950 font-bold px-8 py-4 hover:bg-gold-400 transition shadow-lg shadow-gold-500/20">
-        <iconify-icon icon="solar:pen-new-square-bold"></iconify-icon> 참여 신청하기
+  <section id="register" class="relative py-28 overflow-hidden">
+    <div class="absolute inset-0" style="background:
+      radial-gradient(70% 80% at 50% 50%, rgba(201,162,74,0.14) 0%, rgba(6,32,29,0) 60%),
+      linear-gradient(180deg, #0d3833 0%, #06201d 100%);"></div>
+    <div class="orb float-a" style="width:460px;height:460px;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(63,181,164,0.12);"></div>
+    <div class="relative max-w-3xl mx-auto px-5 text-center">
+      <h2 class="reveal gold-text text-3xl md:text-5xl font-black mb-5 keep">지금, 사전 참여를<br class="sm:hidden" /> 신청하세요</h2>
+      <p class="reveal text-teal2-100 keep mb-9 leading-snug" style="--i:1">현장 기술상담과 이전 매칭은 사전등록 참가자에게 우선 안내됩니다.</p>
+      <a href="#" class="reveal spring cta-glow group inline-flex items-center gap-2 rounded-full bg-gold-500 text-teal2-950 font-bold pl-9 pr-2.5 py-2.5 hover:scale-[1.02] active:scale-[0.98]" style="--i:2">
+        참여 신청하기
+        <span class="w-10 h-10 rounded-full bg-teal2-950/15 grid place-items-center">
+          <iconify-icon icon="solar:arrow-right-linear" class="text-xl spring group-hover:translate-x-1"></iconify-icon>
+        </span>
       </a>
-      <p class="mt-4 text-xs text-teal2-300">※ 신청 링크(구글폼 등)를 이곳 <code class="text-gold-300">href="#"</code> 에 연결하세요.</p>
+      <p class="reveal mt-5 text-xs text-teal2-300 keep" style="--i:3">※ 신청 링크(구글폼 등)를 이곳 <code class="text-gold-300">href="#"</code> 에 연결하세요.</p>
     </div>
   </section>
 
   <!-- ===== FOOTER ===== -->
-  <footer class="bg-teal2-950 py-12 border-t border-white/5">
+  <footer class="bg-teal2-950 py-14 border-t border-white/5">
     <div class="max-w-6xl mx-auto px-5 grid md:grid-cols-2 gap-8 items-center">
       <div>
-        <p class="font-bold text-lg">농식품 테마기술 파트너링 <span class="text-gold-400">vol.02</span></p>
-        <p class="text-sm text-teal2-300 mt-1">SMART AGRI-FRESH TECH · 2026. 9. 9.(수) 14:00 · 서울성암아트홀</p>
-        <p class="text-sm text-teal2-300 mt-3">주최·주관 &nbsp;국립농업과학원 · 한국농업기술진흥원(KOAT)</p>
+        <p class="font-bold text-lg">농식품 테마기술 파트너링 <span class="text-gold-400 font-display">vol.02</span></p>
+        <p class="text-sm text-teal2-300 mt-1 keep">SMART AGRI-FRESH TECH · 2026. 9. 9.(수) 14:00 · 서울성암아트홀</p>
+        <p class="text-sm text-teal2-300 mt-3 keep">주최·주관 &nbsp;국립농업과학원 · 한국농업기술진흥원(KOAT)</p>
       </div>
-      <div class="md:text-right text-sm text-teal2-300">
+      <div class="md:text-right text-sm text-teal2-300 keep">
         <p><iconify-icon icon="solar:letter-bold-duotone" class="text-gold-400 align-middle"></iconify-icon> 문의 : 기술이전·지원사업 상담 데스크</p>
         <p class="mt-1">참여신청 및 기술문의는 사전등록 안내를 참고하세요.</p>
       </div>
@@ -231,11 +268,10 @@
   </footer>
 
   <script>
-    // ===== 특허 데이터 (명세서 초록 기반 요약) =====
     const CATS = {
-      proc:  { label: '농축산 가공·안전',   icon: 'solar:test-tube-bold-duotone',  color: 'gold' },
-      qual:  { label: '디지털 품질측정·관리', icon: 'solar:chart-2-bold-duotone',    color: 'teal' },
-      store: { label: '농산물 정밀제어·저장', icon: 'solar:snowflake-bold-duotone',  color: 'teal' },
+      proc:  { label: '농축산 가공·안전',   color: 'gold' },
+      qual:  { label: '디지털 품질측정·관리', color: 'teal' },
+      store: { label: '농산물 정밀제어·저장', color: 'teal' },
     };
 
     const PATENTS = [
@@ -269,45 +305,49 @@
         summary:'통합센서로 다수 DCA저장고의 기체환경을 측정하고, 질소발생기·중계기로 저장고별 기체환경을 순차적으로 정밀 제어합니다.' },
     ];
 
-    // ===== 렌더링 =====
     const grid = document.getElementById('grid');
     const filters = document.getElementById('filters');
     document.getElementById('techCount').textContent = PATENTS.length + '건';
 
-    const catColor = (c) => c === 'gold'
+    const tone = (c) => c === 'gold'
+      ? 'ring-gold-500/30 text-gold-200'
+      : 'ring-teal2-400/30 text-teal2-100';
+    const badge = (c) => c === 'gold'
       ? 'border-gold-500/40 bg-gold-500/10 text-gold-200'
       : 'border-teal2-400/40 bg-teal2-400/10 text-teal2-100';
 
-    function card(p) {
+    function card(p, i) {
       const cat = CATS[p.cat];
       return `
-      <article data-cat="${p.cat}" class="card-hover reveal rounded-2xl border border-white/10 bg-white/[0.03] p-6 flex flex-col">
-        <div class="flex items-start justify-between gap-3 mb-4">
-          <div class="w-12 h-12 rounded-xl grid place-items-center border ${catColor(cat.color)}">
-            <iconify-icon icon="${p.icon}" class="text-2xl"></iconify-icon>
+      <article data-cat="${p.cat}" style="--i:${i}" class="reveal spring rounded-[1.75rem] bg-white/[0.045] ring-1 ring-white/10 p-1.5 hover:-translate-y-1.5 hover:ring-gold-500/40">
+        <div class="bezel-inner rounded-[calc(1.75rem-0.375rem)] bg-teal2-900/60 p-6 flex flex-col h-full">
+          <div class="flex items-start justify-between gap-3 mb-4">
+            <div class="w-12 h-12 rounded-xl grid place-items-center bg-white/5 ring-1 ${tone(cat.color)}">
+              <iconify-icon icon="${p.icon}" class="text-2xl"></iconify-icon>
+            </div>
+            <span class="text-[11px] font-semibold rounded-full px-2.5 py-1 border ${badge(cat.color)}">${cat.label}</span>
           </div>
-          <span class="text-[11px] font-semibold rounded-full px-2.5 py-1 border ${catColor(cat.color)}">${cat.label}</span>
+          <h3 class="font-bold text-[15px] leading-snug keep mb-2">${p.title}</h3>
+          <p class="text-[13px] text-teal2-200 leading-relaxed keep flex-1">${p.summary}</p>
+          <p class="mt-4 pt-3 border-t border-white/10 text-xs text-teal2-300 flex items-center gap-1.5 font-display">
+            <iconify-icon icon="solar:document-text-bold-duotone" class="text-gold-400"></iconify-icon>
+            ${p.no} · 국립농업과학원
+          </p>
         </div>
-        <h3 class="font-bold text-[15px] leading-snug keep mb-2">${p.title}</h3>
-        <p class="text-[13px] text-teal2-200 leading-relaxed keep flex-1">${p.summary}</p>
-        <p class="mt-4 pt-3 border-t border-white/10 text-xs text-teal2-300 flex items-center gap-1.5">
-          <iconify-icon icon="solar:document-text-bold-duotone" class="text-gold-400"></iconify-icon>
-          ${p.no} · 국립농업과학원
-        </p>
       </article>`;
     }
 
     function render(filter) {
       const list = filter === 'all' ? PATENTS : PATENTS.filter(p => p.cat === filter);
       grid.innerHTML = list.map(card).join('');
+      observe(grid.querySelectorAll('.reveal'));
     }
 
     function chip(key, label, active) {
-      return `<button data-f="${key}" class="chip rounded-full px-4 py-2 text-sm font-semibold border ${active
+      return `<button data-f="${key}" class="spring rounded-full px-4 py-2 text-sm font-semibold border ${active
         ? 'bg-gold-500 text-teal2-950 border-gold-500'
         : 'border-white/15 text-teal2-100 hover:border-gold-400/60'}">${label}</button>`;
     }
-
     function renderFilters(active) {
       let html = chip('all', `전체 ${PATENTS.length}`, active === 'all');
       for (const [k, v] of Object.entries(CATS)) {
@@ -317,9 +357,17 @@
       filters.innerHTML = html;
     }
 
+    // IntersectionObserver reveal
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    function observe(nodes) { nodes.forEach(n => io.observe(n)); }
+
     let current = 'all';
     renderFilters(current);
     render(current);
+    // reveal static (non-grid) elements
+    observe(document.querySelectorAll('.reveal:not(#grid .reveal)'));
 
     filters.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-f]');
