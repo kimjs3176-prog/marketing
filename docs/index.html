@@ -179,14 +179,10 @@
         </a>
       </div>
 
-      <!-- 주최기관 로고 라인 -->
-      <div class="reveal in mt-10 flex flex-col items-center gap-3" style="--i:8">
+      <!-- 주최기관 -->
+      <div class="reveal in mt-10 flex flex-col items-center gap-2" style="--i:8">
         <span class="text-teal2-400 text-xs tracking-widest">주최 · 주관</span>
-        <div class="inline-flex items-center gap-5 rounded-2xl bg-white px-6 py-3.5 shadow-[0_10px_30px_-14px_rgba(0,0,0,0.6)]">
-          <img class="brand-logo h-9 md:h-10 w-auto" src="assets/naas-logo.png" alt="국립농업과학원" data-fallback="국립농업과학원" />
-          <span class="w-px h-8 bg-black/10"></span>
-          <img class="brand-logo h-8 md:h-9 w-auto" src="assets/koat-logo.png" alt="한국농업기술진흥원 KOAT" data-fallback="한국농업기술진흥원" />
-        </div>
+        <p class="text-teal2-100 font-semibold text-base md:text-lg keep">국립농업과학원<span class="text-teal2-500 mx-2">·</span>한국농업기술진흥원<span class="text-gold-300 font-display ml-1.5">KOAT</span></p>
       </div>
     </div>
   </section>
@@ -351,14 +347,7 @@
       <div>
         <p class="font-bold text-lg">농식품 테마기술 파트너링 <span class="text-gold-400 font-display">vol.02</span></p>
         <p class="text-sm text-teal2-300 mt-1 keep">SMART AGRI-FRESH TECH · 2026. 9. 9.(수) 14:00 · 서울성암아트홀</p>
-        <div class="mt-4">
-          <p class="text-[11px] tracking-widest text-teal2-400 mb-2">주최 · 주관</p>
-          <div class="inline-flex items-center gap-4 rounded-xl bg-white px-4 py-2.5 shadow-[0_8px_24px_-14px_rgba(0,0,0,0.6)]">
-            <img class="brand-logo h-7 w-auto" src="assets/naas-logo.png" alt="국립농업과학원" data-fallback="국립농업과학원" />
-            <span class="w-px h-6 bg-black/10"></span>
-            <img class="brand-logo h-6 w-auto" src="assets/koat-logo.png" alt="한국농업기술진흥원 KOAT" data-fallback="한국농업기술진흥원" />
-          </div>
-        </div>
+        <p class="text-sm text-teal2-300 mt-3 keep">주최·주관 &nbsp;국립농업과학원 · 한국농업기술진흥원(KOAT)</p>
       </div>
       <div class="md:text-right text-sm text-teal2-300 keep">
         <p><iconify-icon icon="solar:letter-bold-duotone" class="text-gold-400 align-middle"></iconify-icon> 문의 : 기술이전·지원사업 상담 데스크</p>
@@ -457,16 +446,6 @@
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
     }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
     function observe(nodes) { nodes.forEach(n => io.observe(n)); }
-
-    // 브랜드 로고: 파일이 없으면 기관명 텍스트로 자동 대체
-    document.querySelectorAll('img.brand-logo').forEach(img => {
-      img.addEventListener('error', () => {
-        const s = document.createElement('span');
-        s.className = 'font-bold text-teal2-900 text-sm md:text-base keep';
-        s.textContent = img.dataset.fallback || '';
-        img.replaceWith(s);
-      });
-    });
 
     let current = 'all';
     renderFilters(current);
