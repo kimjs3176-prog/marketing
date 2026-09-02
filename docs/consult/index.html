@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>상담일지 공유 · 팀 전용</title>
+  <meta name="description" content="농식품 유망기술 설명회 수요기업 1:1 기술상담 일지 — 지정 팀원 전용 공유 페이지" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" />
+  <script src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Pretendard', 'system-ui', 'sans-serif'] },
+          colors: {
+            leaf: {
+              50:'#f1f8f2',100:'#dcefdf',200:'#bcdfc2',300:'#8fc79a',400:'#5da96c',
+              500:'#3d8c4f',600:'#2c703c',700:'#245a31',800:'#1f482a',900:'#0f5132',950:'#0a2e1c'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    html { font-family: 'Pretendard', system-ui, sans-serif; }
+    [x-cloak] { display: none !important; }
+    .card-shadow { box-shadow: 0 1px 2px rgba(15,81,50,.06), 0 4px 16px rgba(15,81,50,.05); }
+  </style>
+</head>
+<body class="bg-leaf-50 text-leaf-950 min-h-screen antialiased">
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       ★ 설정(CONFIG) — 아래 두 값을 본인 Supabase 프로젝트 값으로 바꾸세요.
+         · Supabase 대시보드 → Project Settings → API 에서 확인
+         · Project URL      → SUPABASE_URL
+         · anon / public key → SUPABASE_ANON_KEY
+       (anon key 는 공개되어도 안전합니다. 보안은 서버의 RLS 정책이 담당합니다.)
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <script>
+    const CONFIG = {
+      SUPABASE_URL:      "PASTE_YOUR_SUPABASE_URL",       // 예: https://abcdxyz.supabase.co
+      SUPABASE_ANON_KEY: "PASTE_YOUR_SUPABASE_ANON_KEY",  // 예: eyJhbGciOi...
+    };
+  </script>
+
+  <div id="app"></div>
+
+  <script>
+  // ───────────────────────────────────────────────────────────────────────
+  //  유틸
+  // ───────────────────────────────────────────────────────────────────────
+  const $  = (sel, root = document) => root.querySelector(sel);
+  const el = (id) => document.getElementById(id);
+  const esc = (s) => (s == null ? "" : String(s).replace(/[&<>"']/g, c =>
+    ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c])));
+  const nl2br = (s) => esc(s).replace(/\n/g, "<br>");
+
+  const CATEGORIES = ["치유농업", "식량농업", "스마트농업", "기타"];
+  const STATUSES   = ["진행중", "후속상담필요", "보류", "완료"];
+  const STATUS_STYLE = {
+    "진행중":       "bg-sky-100 text-sky-700",
+    "후속상담필요": "bg-amber-100 text-amber-700",
+    "보류":         "bg-slate-200 text-slate-600",
+    "완료":         "bg-leaf-100 text-leaf-700",
+  };
+  const CAT_STYLE = {
+    "치유농업":   "bg-rose-50 text-rose-600 ring-1 ring-rose-200",
+    "식량농업":   "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
+    "스마트농업": "bg-sky-50 text-sky-700 ring-1 ring-sky-200",
+    "기타":       "bg-slate-50 text-slate-600 ring-1 ring-slate-200",
+  };
+
+  const CONFIGURED = CONFIG.SUPABASE_URL.startsWith("http") &&
+                     !CONFIG.SUPABASE_ANON_KEY.startsWith("PASTE_");
+
+  let sb = null;
+  let state = { user: null, logs: [], filter: { q: "", category: "", status: "" }, editing: null };
+
+  // ───────────────────────────────────────────────────────────────────────
+  //  화면: 설정 안내
+  // ───────────────────────────────────────────────────────────────────────
+  function renderSetupNotice() {
+    el("app").innerHTML = `
+      <div class="max-w-2xl mx-auto px-5 py-16">
+        <div class="bg-white rounded-2xl card-shadow p-8">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="w-11 h-11 rounded-xl bg-amber-100 text-amber-600 grid place-items-center">
+              <iconify-icon icon="solar:settings-bold-duotone" width="24"></iconify-icon>
+            </span>
+            <div>
+              <h1 class="text-lg font-bold">초기 설정이 필요합니다</h1>
+              <p class="text-sm text-slate-500">Supabase 연결 정보가 아직 입력되지 않았습니다.</p>
+            </div>
+          </div>
+          <ol class="text-sm text-slate-700 space-y-2 leading-relaxed list-decimal pl-5 mb-5">
+            <li><code class="bg-leaf-50 px-1.5 py-0.5 rounded text-leaf-800">supabase-setup.sql</code> 을 Supabase SQL Editor 에서 실행</li>
+            <li>Supabase 대시보드 → <b>Project Settings → API</b> 에서 <b>Project URL</b> 과 <b>anon key</b> 복사</li>
+            <li>이 파일(<code class="bg-leaf-50 px-1.5 py-0.5 rounded text-leaf-800">index.html</code>) 상단 <b>CONFIG</b> 에 붙여넣기</li>
+            <li>같은 폴더의 <code class="bg-leaf-50 px-1.5 py-0.5 rounded text-leaf-800">README.md</code> 에 자세한 단계가 있습니다</li>
+          </ol>
+          <p class="text-xs text-slate-400">설정 완료 후 이 페이지를 새로고침하면 로그인 화면이 나타납니다.</p>
+        </div>
+      </div>`;
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  //  화면: 로그인
+  // ───────────────────────────────────────────────────────────────────────
+  function renderLogin() {
+    el("app").innerHTML = `
+      <div class="min-h-screen grid place-items-center px-5 py-12">
+        <div class="w-full max-w-md">
+          <div class="text-center mb-7">
+            <div class="inline-flex items-center gap-2 mb-3">
+              <span class="w-10 h-10 rounded-xl bg-leaf-900 text-white grid place-items-center">
+                <iconify-icon icon="solar:notebook-bold-duotone" width="22"></iconify-icon>
+              </span>
+              <span class="text-leaf-900 font-extrabold text-xl tracking-tight">상담일지 공유</span>
+            </div>
+            <p class="text-sm text-slate-500">지정 팀원 전용 · 수요기업 1:1 기술상담 기록</p>
+          </div>
+
+          <div class="bg-white rounded-2xl card-shadow p-7">
+            <div class="flex gap-1 p-1 bg-leaf-50 rounded-lg mb-5 text-sm font-semibold">
+              <button id="tab-login"  class="flex-1 py-2 rounded-md bg-white text-leaf-900 card-shadow">로그인</button>
+              <button id="tab-signup" class="flex-1 py-2 rounded-md text-slate-500">최초 가입</button>
+            </div>
+
+            <form id="auth-form" class="space-y-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">이메일</label>
+                <input id="f-email" type="email" required autocomplete="email"
+                  class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400"
+                  placeholder="name@koat.or.kr" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">비밀번호</label>
+                <input id="f-password" type="password" required autocomplete="current-password" minlength="6"
+                  class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400"
+                  placeholder="6자 이상" />
+              </div>
+              <button id="auth-submit" type="submit"
+                class="w-full bg-leaf-900 hover:bg-leaf-800 text-white font-semibold py-2.5 rounded-lg text-sm transition">
+                로그인
+              </button>
+              <p id="auth-msg" class="text-sm text-center min-h-[1.25rem]"></p>
+            </form>
+          </div>
+
+          <p class="text-xs text-slate-400 text-center mt-5 leading-relaxed">
+            <iconify-icon icon="solar:lock-keyhole-minimalistic-bold" class="align-[-2px]"></iconify-icon>
+            허용목록에 등록된 이메일만 상담일지에 접근할 수 있습니다.<br>
+            가입만으로는 열람이 불가하며, 관리자가 등록해야 합니다.
+          </p>
+        </div>
+      </div>`;
+
+    let mode = "login";
+    const setMode = (m) => {
+      mode = m;
+      el("tab-login").className  = "flex-1 py-2 rounded-md " + (m==="login"  ? "bg-white text-leaf-900 card-shadow" : "text-slate-500");
+      el("tab-signup").className = "flex-1 py-2 rounded-md " + (m==="signup" ? "bg-white text-leaf-900 card-shadow" : "text-slate-500");
+      el("auth-submit").textContent = m==="login" ? "로그인" : "가입하기";
+      el("f-password").autocomplete = m==="login" ? "current-password" : "new-password";
+      el("auth-msg").textContent = "";
+    };
+    el("tab-login").onclick  = () => setMode("login");
+    el("tab-signup").onclick = () => setMode("signup");
+
+    el("auth-form").onsubmit = async (e) => {
+      e.preventDefault();
+      const email = el("f-email").value.trim();
+      const password = el("f-password").value;
+      const msg = el("auth-msg");
+      const btn = el("auth-submit");
+      btn.disabled = true; btn.classList.add("opacity-60");
+      msg.className = "text-sm text-center text-slate-500 min-h-[1.25rem]";
+      msg.textContent = "처리 중…";
+      try {
+        if (mode === "signup") {
+          const { error } = await sb.auth.signUp({ email, password });
+          if (error) throw error;
+          msg.className = "text-sm text-center text-leaf-700 min-h-[1.25rem]";
+          msg.innerHTML = "가입 요청 완료. 이메일 인증 후 로그인하세요.<br>(허용목록에 등록되어야 열람 가능합니다)";
+        } else {
+          const { error } = await sb.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          // onAuthStateChange 가 화면 전환을 처리
+        }
+      } catch (err) {
+        msg.className = "text-sm text-center text-rose-600 min-h-[1.25rem]";
+        msg.textContent = translateAuthError(err);
+      } finally {
+        btn.disabled = false; btn.classList.remove("opacity-60");
+      }
+    };
+  }
+
+  function translateAuthError(err) {
+    const m = (err && err.message) || String(err);
+    if (/Invalid login credentials/i.test(m)) return "이메일 또는 비밀번호가 올바르지 않습니다.";
+    if (/Email not confirmed/i.test(m))       return "이메일 인증이 필요합니다. 받은 편지함을 확인하세요.";
+    if (/already registered/i.test(m))        return "이미 가입된 이메일입니다. 로그인하세요.";
+    if (/rate limit/i.test(m))                return "잠시 후 다시 시도해주세요.";
+    return m;
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  //  화면: 접근 거부 (로그인은 됐지만 허용목록에 없음)
+  // ───────────────────────────────────────────────────────────────────────
+  function renderNoAccess() {
+    el("app").innerHTML = `
+      <div class="min-h-screen grid place-items-center px-5">
+        <div class="max-w-md text-center bg-white rounded-2xl card-shadow p-8">
+          <span class="w-14 h-14 mx-auto rounded-2xl bg-rose-50 text-rose-500 grid place-items-center mb-4">
+            <iconify-icon icon="solar:shield-cross-bold-duotone" width="30"></iconify-icon>
+          </span>
+          <h1 class="text-lg font-bold mb-2">접근 권한이 없습니다</h1>
+          <p class="text-sm text-slate-500 leading-relaxed mb-1">
+            로그인 계정 <b class="text-slate-700">${esc(state.user?.email || "")}</b> 은(는)<br>
+            상담일지 허용목록에 등록되어 있지 않습니다.
+          </p>
+          <p class="text-xs text-slate-400 mb-6">관리자에게 이메일 등록을 요청하세요.</p>
+          <button id="logout-btn" class="text-sm font-semibold text-leaf-700 hover:text-leaf-900">
+            <iconify-icon icon="solar:logout-2-bold" class="align-[-2px]"></iconify-icon> 로그아웃
+          </button>
+        </div>
+      </div>`;
+    el("logout-btn").onclick = () => sb.auth.signOut();
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  //  화면: 메인 앱
+  // ───────────────────────────────────────────────────────────────────────
+  function renderApp() {
+    el("app").innerHTML = `
+      <header class="bg-leaf-900 text-white sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-5 h-14 flex items-center gap-3">
+          <span class="w-8 h-8 rounded-lg bg-white/15 grid place-items-center">
+            <iconify-icon icon="solar:notebook-bold-duotone" width="18"></iconify-icon>
+          </span>
+          <div class="leading-tight">
+            <div class="font-bold text-sm">상담일지 공유</div>
+            <div class="text-[11px] text-leaf-200">수요기업 1:1 기술상담 기록 · 팀 전용</div>
+          </div>
+          <div class="ml-auto flex items-center gap-3">
+            <span class="text-xs text-leaf-100 hidden sm:inline">
+              <iconify-icon icon="solar:user-circle-bold" class="align-[-2px]"></iconify-icon>
+              ${esc(state.user.email)}
+            </span>
+            <button id="logout-btn" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition">로그아웃</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="max-w-6xl mx-auto px-5 py-6">
+        <!-- 툴바 -->
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+          <div class="relative flex-1 min-w-[200px]">
+            <iconify-icon icon="solar:magnifer-linear" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></iconify-icon>
+            <input id="search" placeholder="기업명 · 기술 · 상담자 · 내용 검색"
+              class="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400" />
+          </div>
+          <select id="filter-cat" class="py-2.5 px-3 rounded-xl border border-slate-200 bg-white text-sm">
+            <option value="">전체 분야</option>
+            ${CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join("")}
+          </select>
+          <select id="filter-status" class="py-2.5 px-3 rounded-xl border border-slate-200 bg-white text-sm">
+            <option value="">전체 상태</option>
+            ${STATUSES.map(s => `<option value="${s}">${s}</option>`).join("")}
+          </select>
+          <button id="export-btn" class="py-2.5 px-3 rounded-xl border border-slate-200 bg-white text-sm text-slate-600 hover:bg-slate-50">
+            <iconify-icon icon="solar:download-minimalistic-bold" class="align-[-2px]"></iconify-icon> CSV
+          </button>
+          <button id="new-btn" class="py-2.5 px-4 rounded-xl bg-leaf-900 hover:bg-leaf-800 text-white text-sm font-semibold">
+            <iconify-icon icon="solar:add-circle-bold" class="align-[-2px]"></iconify-icon> 새 상담일지
+          </button>
+        </div>
+
+        <div id="count-bar" class="text-xs text-slate-400 mb-2"></div>
+        <div id="list"></div>
+      </main>
+
+      <!-- 폼 모달 -->
+      <div id="modal" x-cloak class="fixed inset-0 z-50 hidden">
+        <div id="modal-bg" class="absolute inset-0 bg-leaf-950/40 backdrop-blur-sm"></div>
+        <div class="absolute inset-0 overflow-y-auto p-4">
+          <div class="max-w-2xl mx-auto my-4 bg-white rounded-2xl card-shadow">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 sticky top-0 bg-white rounded-t-2xl">
+              <h2 id="modal-title" class="font-bold">새 상담일지</h2>
+              <button id="modal-close" class="text-slate-400 hover:text-slate-600">
+                <iconify-icon icon="solar:close-circle-bold" width="24"></iconify-icon>
+              </button>
+            </div>
+            <form id="log-form" class="p-6 grid grid-cols-2 gap-4">
+              <div class="col-span-2 sm:col-span-1">
+                <label class="block text-xs font-semibold text-slate-500 mb-1">수요기업명 <span class="text-rose-500">*</span></label>
+                <input name="company_name" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400" />
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <label class="block text-xs font-semibold text-slate-500 mb-1">상담일자</label>
+                <input name="consult_date" type="date" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400" />
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <label class="block text-xs font-semibold text-slate-500 mb-1">분야</label>
+                <select name="category" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-leaf-400">
+                  <option value="">선택</option>
+                  ${CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join("")}
+                </select>
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <label class="block text-xs font-semibold text-slate-500 mb-1">진행상태</label>
+                <select name="status" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-leaf-400">
+                  ${STATUSES.map(s => `<option value="${s}">${s}</option>`).join("")}
+                </select>
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <label class="block text-xs font-semibold text-slate-500 mb-1">관심/상담 기술</label>
+                <input name="technology" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400" />
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <label class="block text-xs font-semibold text-slate-500 mb-1">상담자(담당)</label>
+                <input name="counselor" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400" />
+              </div>
+              <div class="col-span-2">
+                <label class="block text-xs font-semibold text-slate-500 mb-1">상담 내용</label>
+                <textarea name="content" rows="5" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400"></textarea>
+              </div>
+              <div class="col-span-2">
+                <label class="block text-xs font-semibold text-slate-500 mb-1">후속조치 / 특이사항</label>
+                <textarea name="followup" rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-400"></textarea>
+              </div>
+              <div class="col-span-2 flex items-center justify-between pt-1">
+                <button type="button" id="delete-btn" class="text-sm text-rose-600 hover:text-rose-700 font-semibold hidden">
+                  <iconify-icon icon="solar:trash-bin-trash-bold" class="align-[-2px]"></iconify-icon> 삭제
+                </button>
+                <div class="ml-auto flex gap-2">
+                  <button type="button" id="cancel-btn" class="px-4 py-2 rounded-lg text-sm text-slate-600 hover:bg-slate-100">취소</button>
+                  <button type="submit" id="save-btn" class="px-5 py-2 rounded-lg bg-leaf-900 hover:bg-leaf-800 text-white text-sm font-semibold">저장</button>
+                </div>
+              </div>
+              <p id="form-msg" class="col-span-2 text-sm text-rose-600 min-h-[1rem]"></p>
+            </form>
+          </div>
+        </div>
+      </div>`;
+
+    el("logout-btn").onclick = () => sb.auth.signOut();
+    el("new-btn").onclick    = () => openModal(null);
+    el("export-btn").onclick = exportCsv;
+    el("modal-close").onclick = closeModal;
+    el("modal-bg").onclick    = closeModal;
+    el("cancel-btn").onclick  = closeModal;
+    el("log-form").onsubmit   = saveLog;
+    el("delete-btn").onclick  = deleteLog;
+
+    const applyFilter = () => {
+      state.filter.q = el("search").value.trim().toLowerCase();
+      state.filter.category = el("filter-cat").value;
+      state.filter.status = el("filter-status").value;
+      renderList();
+    };
+    el("search").oninput = applyFilter;
+    el("filter-cat").onchange = applyFilter;
+    el("filter-status").onchange = applyFilter;
+
+    renderList();
+  }
+
+  function filteredLogs() {
+    const { q, category, status } = state.filter;
+    return state.logs.filter(l => {
+      if (category && l.category !== category) return false;
+      if (status && l.status !== status) return false;
+      if (q) {
+        const hay = [l.company_name, l.technology, l.counselor, l.content, l.followup, l.author_email]
+          .join(" ").toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }
+
+  function renderList() {
+    const logs = filteredLogs();
+    el("count-bar").textContent = `총 ${state.logs.length}건${logs.length !== state.logs.length ? ` · 필터 결과 ${logs.length}건` : ""}`;
+    const list = el("list");
+
+    if (!logs.length) {
+      list.innerHTML = `
+        <div class="text-center py-20 text-slate-400">
+          <iconify-icon icon="solar:documents-minimalistic-bold-duotone" width="48"></iconify-icon>
+          <p class="mt-3 text-sm">${state.logs.length ? "조건에 맞는 상담일지가 없습니다." : "아직 작성된 상담일지가 없습니다. 첫 기록을 추가해보세요."}</p>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = `<div class="grid gap-3">` + logs.map(l => {
+      const dateStr = l.consult_date || (l.created_at ? l.created_at.slice(0,10) : "");
+      return `
+      <article class="bg-white rounded-xl card-shadow p-4 sm:p-5 hover:ring-1 hover:ring-leaf-200 transition cursor-pointer" data-id="${l.id}">
+        <div class="flex items-start gap-3">
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-1.5">
+              <h3 class="font-bold text-[15px] text-leaf-950 truncate">${esc(l.company_name)}</h3>
+              ${l.category ? `<span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${CAT_STYLE[l.category]||CAT_STYLE['기타']}">${esc(l.category)}</span>` : ""}
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full ${STATUS_STYLE[l.status]||''}">${esc(l.status)}</span>
+            </div>
+            ${l.technology ? `<p class="text-[13px] text-slate-600 mb-1"><iconify-icon icon="solar:test-tube-bold" class="align-[-2px] text-leaf-500"></iconify-icon> ${esc(l.technology)}</p>` : ""}
+            ${l.content ? `<p class="text-[13px] text-slate-500 line-clamp-2 leading-relaxed">${nl2br(l.content)}</p>` : ""}
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 pt-3 border-t border-slate-50 text-[11px] text-slate-400">
+          ${dateStr ? `<span><iconify-icon icon="solar:calendar-minimalistic-bold" class="align-[-2px]"></iconify-icon> ${esc(dateStr)}</span>` : ""}
+          ${l.counselor ? `<span><iconify-icon icon="solar:user-bold" class="align-[-2px]"></iconify-icon> ${esc(l.counselor)}</span>` : ""}
+          <span class="ml-auto">작성 ${esc(l.author_email||"")}</span>
+        </div>
+      </article>`;
+    }).join("") + `</div>`;
+
+    list.querySelectorAll("[data-id]").forEach(node => {
+      node.onclick = () => openModal(state.logs.find(l => l.id === node.dataset.id));
+    });
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  //  모달 (생성 / 수정)
+  // ───────────────────────────────────────────────────────────────────────
+  function openModal(log) {
+    state.editing = log || null;
+    const f = el("log-form");
+    f.reset();
+    el("form-msg").textContent = "";
+    el("modal-title").textContent = log ? "상담일지 수정" : "새 상담일지";
+    el("delete-btn").classList.toggle("hidden", !log);
+    if (log) {
+      f.company_name.value = log.company_name || "";
+      f.consult_date.value = log.consult_date || "";
+      f.category.value     = log.category || "";
+      f.status.value       = log.status || "진행중";
+      f.technology.value   = log.technology || "";
+      f.counselor.value    = log.counselor || "";
+      f.content.value      = log.content || "";
+      f.followup.value     = log.followup || "";
+    } else {
+      f.status.value = "진행중";
+      f.counselor.value = state.user.email.split("@")[0];
+      f.consult_date.value = new Date().toISOString().slice(0,10);
+    }
+    const m = el("modal");
+    m.classList.remove("hidden"); m.removeAttribute("x-cloak");
+  }
+  function closeModal() {
+    el("modal").classList.add("hidden");
+    state.editing = null;
+  }
+
+  async function saveLog(e) {
+    e.preventDefault();
+    const f = el("log-form");
+    const btn = el("save-btn");
+    const msg = el("form-msg");
+    const payload = {
+      company_name: f.company_name.value.trim(),
+      consult_date: f.consult_date.value || null,
+      category:     f.category.value || null,
+      status:       f.status.value,
+      technology:   f.technology.value.trim() || null,
+      counselor:    f.counselor.value.trim() || null,
+      content:      f.content.value.trim() || null,
+      followup:     f.followup.value.trim() || null,
+    };
+    if (!payload.company_name) { msg.textContent = "수요기업명을 입력하세요."; return; }
+    btn.disabled = true; btn.classList.add("opacity-60"); msg.textContent = "";
+    try {
+      let error;
+      if (state.editing) {
+        ({ error } = await sb.from("consultation_logs").update(payload).eq("id", state.editing.id));
+      } else {
+        ({ error } = await sb.from("consultation_logs").insert(payload));
+      }
+      if (error) throw error;
+      closeModal();
+      await loadLogs();
+    } catch (err) {
+      msg.textContent = "저장 실패: " + ((err && err.message) || err);
+    } finally {
+      btn.disabled = false; btn.classList.remove("opacity-60");
+    }
+  }
+
+  async function deleteLog() {
+    if (!state.editing) return;
+    if (!confirm(`"${state.editing.company_name}" 상담일지를 삭제할까요?`)) return;
+    const { error } = await sb.from("consultation_logs").delete().eq("id", state.editing.id);
+    if (error) { alert("삭제 실패: " + error.message); return; }
+    closeModal();
+    await loadLogs();
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  //  CSV 내보내기
+  // ───────────────────────────────────────────────────────────────────────
+  function exportCsv() {
+    const rows = filteredLogs();
+    const cols = [
+      ["consult_date","상담일자"],["company_name","수요기업명"],["category","분야"],
+      ["technology","관심기술"],["counselor","상담자"],["status","상태"],
+      ["content","상담내용"],["followup","후속조치"],["author_email","작성자"],["created_at","작성시각"],
+    ];
+    const q = (v) => `"${String(v==null?"":v).replace(/"/g,'""')}"`;
+    const csv = [cols.map(c => c[1]).join(",")]
+      .concat(rows.map(r => cols.map(c => q(r[c[0]])).join(",")))
+      .join("\r\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `상담일지_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  //  데이터 로드 + 접근 판별
+  // ───────────────────────────────────────────────────────────────────────
+  async function loadLogs() {
+    const { data, error } = await sb
+      .from("consultation_logs")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    state.logs = data || [];
+    if (el("list")) renderList();
+  }
+
+  async function enterApp() {
+    // RLS 때문에, 허용목록에 없으면 select 는 성공하지만 0건 반환.
+    // 명확한 구분을 위해 is_allowed_member() RPC 로 권한을 먼저 확인.
+    let allowed = false;
+    try {
+      const { data, error } = await sb.rpc("is_allowed_member");
+      if (!error) allowed = !!data;
+    } catch (_) {}
+    if (!allowed) { renderNoAccess(); return; }
+
+    try {
+      await loadLogs();
+    } catch (err) {
+      renderNoAccess(); return;
+    }
+    renderApp();
+    subscribeRealtime();
+  }
+
+  // 팀원이 추가/수정 시 실시간 반영
+  let channel = null;
+  function subscribeRealtime() {
+    if (channel) return;
+    channel = sb.channel("consultation_logs_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "consultation_logs" }, async () => {
+        try { await loadLogs(); } catch (_) {}
+      })
+      .subscribe();
+  }
+
+  // ───────────────────────────────────────────────────────────────────────
+  //  부트스트랩
+  // ───────────────────────────────────────────────────────────────────────
+  (function init() {
+    if (!CONFIGURED) { renderSetupNotice(); return; }
+    sb = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+    sb.auth.onAuthStateChange((_event, session) => {
+      const prevEmail = state.user?.email;
+      state.user = session?.user || null;
+      if (state.user) {
+        if (state.user.email !== prevEmail) enterApp();
+      } else {
+        if (channel) { sb.removeChannel(channel); channel = null; }
+        state.logs = [];
+        renderLogin();
+      }
+    });
+
+    // 초기 세션 확인
+    sb.auth.getSession().then(({ data }) => {
+      if (data.session?.user) { state.user = data.session.user; enterApp(); }
+      else renderLogin();
+    });
+  })();
+  </script>
+</body>
+</html>
