@@ -41,6 +41,16 @@
   <style>
     html { scroll-behavior: smooth; }
     body { font-family: 'Pretendard', system-ui, sans-serif; background: #06201d; }
+
+    /* ===== design-isms: generative-identity 회차별 액센트 ===== */
+    :root { --accent: 74,144,226; }
+    /* ===== design-isms: 스크롤 진행 표시 (micro-interaction, JS 불필요) ===== */
+    .scroll-prog { position: fixed; top: 0; left: 0; height: 3px; width: 100%; z-index: 70;
+      transform-origin: 0 50%; transform: scaleX(0);
+      background: linear-gradient(90deg, #e0c47f, #c9a24a);
+      animation: scrollGrow auto linear; animation-timeline: scroll(root); }
+    @keyframes scrollGrow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+
     .keep { word-break: keep-all; }
     .font-display { font-family: 'Space Grotesk', 'Pretendard', sans-serif; }
     .spring { transition: all .5s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -101,6 +111,7 @@
 </head>
 <body class="text-teal2-50 antialiased overflow-x-hidden">
   <div class="noise"></div>
+  <div class="scroll-prog"></div>
 
   <!-- ===== FLOATING GLASS NAV ===== -->
   <header class="fixed top-0 inset-x-0 z-50 flex justify-center px-4">
@@ -146,7 +157,7 @@
 
       <div class="reveal in inline-flex flex-wrap items-center justify-center gap-2 mb-4" style="--i:4">
         <span class="font-display rounded-full border border-gold-500/40 bg-gold-500/10 text-gold-200 text-sm font-semibold px-4 py-1.5">vol.03</span>
-        <span class="font-display rounded-full border border-teal2-400/40 bg-teal2-400/10 text-teal2-100 text-sm font-semibold px-4 py-1.5">K-SMART LIVESTOCK</span>
+        <span class="font-display rounded-full border border-[rgba(var(--accent),0.45)] bg-[rgba(var(--accent),0.12)] text-teal2-100 text-sm font-semibold px-4 py-1.5">K-SMART LIVESTOCK</span>
       </div>
 
       <!-- 일시/장소 double-bezel -->
@@ -279,7 +290,7 @@
     <div class="orb float-b" style="width:400px;height:400px;top:10%;right:-140px;background:rgba(201,162,74,0.10);"></div>
     <div class="max-w-6xl mx-auto px-5 relative">
       <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="reveal inline-block rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.15em] font-medium bg-teal2-400/10 text-teal2-200 mb-4 font-display">K-Smart Livestock</span>
+        <span class="reveal inline-block rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.15em] font-medium bg-[rgba(var(--accent),0.14)] text-teal2-100 mb-4 font-display">K-Smart Livestock</span>
         <h2 class="reveal text-3xl md:text-4xl font-bold mb-4 keep" style="--i:1">소개 특허기술 <span class="text-gold-400 font-display" id="techCount"></span></h2>
         <p class="reveal text-teal2-200 keep leading-snug" style="--i:2">국립축산과학원이 보유한 스마트 축산·첨단바이오·기후대응 분야 특허기술입니다. 분야를 눌러 살펴보세요.</p>
       </div>
@@ -416,8 +427,8 @@
     const filters = document.getElementById('filters');
     document.getElementById('techCount').textContent = PATENTS.length + '건';
 
-    const tone = (c) => c === 'gold' ? 'ring-gold-500/30 text-gold-200' : 'ring-teal2-400/30 text-teal2-100';
-    const badge = (c) => c === 'gold' ? 'border-gold-500/40 bg-gold-500/10 text-gold-200' : 'border-teal2-400/40 bg-teal2-400/10 text-teal2-100';
+    const tone = (c) => c === 'gold' ? 'ring-gold-500/30 text-gold-200' : 'ring-[rgba(var(--accent),0.4)] text-teal2-100';
+    const badge = (c) => c === 'gold' ? 'border-gold-500/40 bg-gold-500/10 text-gold-200' : 'border-[rgba(var(--accent),0.45)] bg-[rgba(var(--accent),0.12)] text-teal2-100';
 
     function card(p, i) {
       const cat = CATS[p.cat];
