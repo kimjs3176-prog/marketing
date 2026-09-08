@@ -20,7 +20,9 @@
 
 | 파일 | 내용 |
 |------|------|
-| `index.html` | **대표 페이지** — 농식품 테마기술 파트너링 vol.02 (2026. 9. 9. · 서울성암아트홀) |
+| `index.html` | **대표 페이지** — 농식품 테마기술 파트너링 vol.02 · SMART AGRI-FRESH TECH (2026. 9. 9. · 서울성암아트홀) |
+| `vol3.html` | 파트너링 vol.03 · K-Smart Livestock — 국립축산과학원 (2026. 10. 13. · 서울 성암아트홀) |
+| `vol4.html` | 파트너링 vol.04 · K-Natural Bio Tech — 국립원예특작과학원 (2026. 10. 14. · 서울 성암아트홀) |
 | `yumang-tech-seminar.html` | (이전) 농식품 유망기술 설명회 (2026. 9. 14. · ST 과학기술컨벤션센터) |
 
 ## GitHub Pages 배포
