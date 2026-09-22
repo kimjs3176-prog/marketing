@@ -232,7 +232,7 @@
               <iconify-icon icon="solar:test-tube-bold-duotone" class="text-gold-400 text-xl shrink-0"></iconify-icon>
               <h3 class="font-bold text-[15px] leading-tight keep">테마기술 소개</h3>
             </div>
-            <p class="text-xs text-teal2-200 keep leading-snug">K-뷰티·항염 바이오 · 대사질환·피부노화 · 뇌신경·면역·신바이오틱스</p>
+            <p class="text-xs text-teal2-200 keep leading-snug">항노화·대사·만성질환 · 피부·뷰티 & 항염 · 면역·건강기능</p>
           </div>
         </div>
         <div class="reveal spring rounded-2xl bg-white/[0.04] ring-1 ring-white/10 p-1 hover:-translate-y-1" style="--i:1">
@@ -397,46 +397,34 @@
 
   <script>
     const CATS = {
-      proc:  { label: "K-뷰티·항염 바이오", color: 'gold' },
-      qual:  { label: "대사질환·피부노화 개선", color: 'teal' },
-      store: { label: "뇌신경·면역·신바이오틱스", color: 'teal' },
+      proc:  { label: "항노화·대사·만성질환", color: 'gold' },
+      qual:  { label: "피부·뷰티 & 항염", color: 'teal' },
+      store: { label: "면역·건강기능", color: 'teal' },
     };
 
     const PATENTS = [
-      { cat:"proc", title:"감귤 옐로우볼 과피 유래 신규화합물 항산화·항염증 조성물", no:"출원 10-2023-0166347", icon:"solar:test-tube-bold-duotone",
-        summary:"감귤 신품종 옐로우볼 과피에서 분리한 신규 화합물을 유효성분으로 하는 항산화·항염증용 조성물입니다." },
-      { cat:"proc", title:"감귤 무봉추출물 함유 탈모 예방·개선·치료 조성물", no:"출원 10-2022-0154399", icon:"solar:jar-of-pills-bold-duotone",
-        summary:"감귤 무봉 추출물을 유효성분으로 하여 탈모 증상의 예방·개선·치료에 쓰이는 조성물입니다." },
-      { cat:"proc", title:"메란진 하이드레이트 함유 화장료 조성물", no:"출원 10-2016-0080629", icon:"solar:water-drops-bold-duotone",
-        summary:"메란진 하이드레이트를 함유한 기능성 화장료 조성물입니다." },
-      { cat:"proc", title:"미니향 과피 추출물 함유 탈모 예방·개선 화장료 조성물", no:"출원 10-2021-0157282", icon:"solar:jar-of-pills-bold-duotone",
-        summary:"미니향 과피 추출물을 포함해 탈모 증상의 예방·개선·치료를 돕는 화장료 조성물입니다." },
-      { cat:"proc", title:"홍팔삭·숙지황 혼합 추출물 함유 염증성 질환 예방·치료 조성물", no:"출원 10-2020-0179019", icon:"solar:leaf-bold-duotone",
-        summary:"홍팔삭과 숙지황의 혼합 추출물을 유효성분으로 하는 염증성 질환 예방·치료용 조성물입니다." },
-      { cat:"qual", title:"마나산틴 A/B 함유 비알코올성 지방간 예방·치료 조성물", no:"출원 10-2017-0105348", icon:"solar:test-tube-bold-duotone",
-        summary:"마나산틴 A 또는 B를 포함해 비알코올성 지방간 질환의 예방·치료에 쓰이는 조성물입니다." },
-      { cat:"qual", title:"로가닌 함유 비알코올성 지방간 예방·치료 조성물", no:"출원 10-2019-0165543", icon:"solar:test-tube-bold-duotone",
-        summary:"로가닌을 유효성분으로 하는 비알코올성 지방간 예방·치료용 조성물입니다." },
-      { cat:"qual", title:"고온처리 감초 추출물 (피부노화 방지·주름 개선)", no:"출원 10-2020-177228", icon:"solar:water-drops-bold-duotone",
+      { cat:"proc", title:"피부노화 방지·주름 개선 기능성분 증가 감초 추출물", no:"출원 10-2020-0177228", icon:"solar:water-drops-bold-duotone",
         summary:"고온 처리로 기능성분을 높인 감초 추출물로, 피부노화 방지 및 주름 개선 효과를 제공합니다." },
-      { cat:"qual", title:"산수유 미성숙과 추출물 함유 비만 예방·치료 조성물", no:"출원 10-2022-006297", icon:"solar:leaf-bold-duotone",
+      { cat:"proc", title:"산수유 미성숙과 추출물 함유 비만 예방·치료 조성물", no:"출원 10-2022-0062967", icon:"solar:leaf-bold-duotone",
         summary:"산수유 미성숙과 추출물을 유효성분으로 하는 비만 예방·치료용 조성물입니다." },
-      { cat:"store", title:"제주조릿대 추출물 함유 퇴행성 신경질환 예방·치료 조성물", no:"출원 10-2022-0057922", icon:"solar:pulse-bold-duotone",
-        summary:"제주조릿대 추출물을 유효성분으로 하는 퇴행성 신경질환 예방·치료용 조성물입니다." },
-      { cat:"store", title:"선씀바귀 추출물 함유 당뇨병 예방·치료 조성물", no:"출원 10-2019-0162714", icon:"solar:leaf-bold-duotone",
+      { cat:"proc", title:"마나산틴 A/B 함유 비알코올성 지방간 예방·치료 조성물", no:"출원 10-2017-0105348", icon:"solar:test-tube-bold-duotone",
+        summary:"마나산틴 A 또는 B를 포함해 비알코올성 지방간 질환의 예방·치료에 쓰이는 조성물입니다." },
+      { cat:"proc", title:"선씀바귀 추출물 함유 당뇨병 예방·치료 조성물", no:"출원 10-2019-0162714", icon:"solar:test-tube-bold-duotone",
         summary:"선씀바귀 추출물 또는 분획물을 유효성분으로 하는 당뇨병 예방·치료용 조성물입니다." },
-      { cat:"store", title:"흑삼/발효흑삼 추출물 함유 전립선 질환 예방·치료 조성물", no:"출원 10-2019-0052895", icon:"solar:jar-of-pills-bold-duotone",
-        summary:"흑삼 또는 발효흑삼 추출물을 유효성분으로 하는 전립선 질환 예방·치료용 조성물입니다." },
-      { cat:"store", title:"식방풍 지상부 추출물 함유 뇌염증 예방·치료 조성물", no:"출원 10-2024-0165541", icon:"solar:pulse-bold-duotone",
-        summary:"식방풍 지상부 추출물을 유효성분으로 하는 뇌염증 예방·치료용 조성물입니다." },
-      { cat:"store", title:"식방풍+프로바이오틱스 신바이오틱스 조성물 (장건강·기억력)", no:"출원 10-2024-0165540", icon:"solar:test-tube-bold-duotone",
-        summary:"식방풍 지상부 추출물과 프로바이오틱스 균주를 포함해 장 건강과 기억력 증진을 돕는 신바이오틱스 조성물입니다." },
+      { cat:"proc", title:"제주조릿대 추출물 함유 퇴행성 신경질환 예방·치료 조성물", no:"출원 10-2022-0057922", icon:"solar:pulse-bold-duotone",
+        summary:"제주조릿대 추출물을 유효성분으로 하는 퇴행성 신경질환 예방·치료용 조성물입니다." },
+      { cat:"proc", title:"로가닌 함유 비알코올성 지방간 예방·치료 조성물", no:"출원 10-2019-0165543", icon:"solar:test-tube-bold-duotone",
+        summary:"로가닌을 유효성분으로 하는 비알코올성 지방간 예방·치료용 조성물입니다." },
+      { cat:"qual", title:"미니향 과피 추출물 함유 탈모 예방·개선·치료 조성물", no:"출원 10-2021-0157282", icon:"solar:jar-of-pills-bold-duotone",
+        summary:"미니향 과피 추출물을 포함해 탈모 증상의 예방·개선·치료를 돕는 조성물입니다." },
+      { cat:"qual", title:"홍팔삭·숙지황 혼합 추출물 함유 염증성 질환 예방·치료 조성물", no:"출원 10-2020-0179019", icon:"solar:leaf-bold-duotone",
+        summary:"홍팔삭과 숙지황의 혼합 추출물을 포함하는 염증성 질환 예방·치료용 조성물입니다." },
       { cat:"store", title:"오가피 열매 발효물 함유 면역증진 조성물", no:"출원 10-2022-0046163", icon:"solar:leaf-bold-duotone",
         summary:"오가피 열매 발효물을 유효성분으로 하는 면역증진용 조성물입니다." },
       { cat:"store", title:"발효오디추출물 함유 항산화 조성물", no:"출원 10-2018-0157250", icon:"solar:water-drops-bold-duotone",
         summary:"발효 오디 추출물을 포함하는 항산화용 조성물입니다." },
-      { cat:"store", title:"흑삼 추출물 함유 반려동물 면역력 증진 조성물", no:"출원 10-2020-0138698", icon:"solar:jar-of-pills-bold-duotone",
-        summary:"흑삼 추출물을 유효성분으로 하는 반려동물 면역력 증진용 조성물입니다." },
+      { cat:"store", title:"식방풍+프로바이오틱스 신바이오틱스 조성물 (장건강·기억력)", no:"출원 10-2024-0165540", icon:"solar:test-tube-bold-duotone",
+        summary:"식방풍 지상부 추출물과 프로바이오틱스 균주를 포함해 장 건강과 기억력 증진을 돕는 신바이오틱스 조성물입니다." },
     ];
 
     const grid = document.getElementById('grid');
