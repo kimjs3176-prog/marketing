@@ -115,6 +115,8 @@
     .gold-text.shimmer { background: linear-gradient(100deg,#c9a24a 0%,#e0c47f 28%,#fff6dc 46%,#e0c47f 62%,#c9a24a 100%);
       background-size: 260% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
       animation: shimmer 7s ease-in-out infinite; }
+    .reveal.in.shimmer { animation: fadeInUp .7s cubic-bezier(0.16,1,0.3,1) both, shimmer 7s ease-in-out infinite;
+      animation-delay: calc(var(--i, 0) * 70ms), 0s; }
     @keyframes shimmer { 0%,100% { background-position: 100% 0 } 50% { background-position: 0% 0 } }
     .blueprint { animation: gridPan 28s linear infinite; }
     @keyframes gridPan { to { background-position: 46px 46px, 46px 46px } }

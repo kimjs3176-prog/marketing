@@ -25,6 +25,12 @@
 | `vol4.html` | 파트너링 vol.04 · K-Natural Bio Tech — 국립원예특작과학원 (2026. 10. 14. · 서울 성암아트홀) |
 | `yumang-tech-seminar.html` | (이전) 농식품 유망기술 설명회 (2026. 9. 14. · ST 과학기술컨벤션센터) |
 
+### 공식 포스터 (vol.03 · vol.04)
+
+- 파일 : `assets/vol3-poster.jpg`, `assets/vol4-poster.jpg` (히어로 우측 포스터 카드 · 클릭 시 라이트박스 · 저장 버튼, `og:image` 공유 썸네일)
+- `assets/volN-poster-ambient.jpg` 는 히어로 배경에 번지는 색감용 저해상도 블러 이미지입니다.
+- 포스터를 교체할 때는 같은 파일명으로 덮어쓰고, 해상도가 바뀌면 `<img>`의 `width`/`height` 값도 함께 수정하세요.
+
 ## GitHub Pages 배포
 
 1. GitHub 저장소 → **Settings → Pages**

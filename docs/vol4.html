@@ -8,7 +8,13 @@
   <meta property="og:title" content="농식품 테마기술 파트너링 vol.04 — K-Natural Bio Tech" />
   <meta property="og:description" content="농식품의 미래, 기술로 잇다 — 2026. 10. 14.(수) 14:00 서울 성암아트홀" />
   <meta property="og:type" content="website" />
-  <meta name="theme-color" content="#130d2c" />
+  <meta property="og:image" content="https://kimjs3176-prog.github.io/marketing/assets/vol4-poster.jpg" />
+  <meta property="og:image:width" content="453" />
+  <meta property="og:image:height" content="640" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://kimjs3176-prog.github.io/marketing/assets/vol4-poster.jpg" />
+  <link rel="preload" as="image" href="assets/vol4-poster.jpg" />
+  <meta name="theme-color" content="#110a33" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,7 +33,7 @@
             teal2: {
               50: '#f5f1ff', 100: '#e8defe', 200: '#d2c1fb', 300: '#b69cf6',
               400: '#9a7bec', 500: '#7c5cd6', 600: '#6346b6', 700: '#4c3591',
-              800: '#2b1d56', 900: '#1e1542', 950: '#130d2c'
+              800: '#26185e', 900: '#1a0f4a', 950: '#110a33'
             },
             gold: {
               100: '#fbeefa', 200: '#f5d3f1', 300: '#eab0e3', 400: '#df94d6',
@@ -40,7 +46,7 @@
   </script>
   <style>
     html { scroll-behavior: smooth; }
-    body { font-family: 'Pretendard', system-ui, sans-serif; background: #130d2c; }
+    body { font-family: 'Pretendard', system-ui, sans-serif; background: #110a33; }
 
     /* ===== design-isms: generative-identity 회차별 액센트 ===== */
     :root { --accent: 196,158,255; }
@@ -115,6 +121,8 @@
     .gold-text.shimmer { background: linear-gradient(100deg,#cf74c4 0%,#eab0e3 28%,#fff2fd 46%,#eab0e3 62%,#cf74c4 100%);
       background-size: 260% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
       animation: shimmer 7s ease-in-out infinite; }
+    .reveal.in.shimmer { animation: fadeInUp .7s cubic-bezier(0.16,1,0.3,1) both, shimmer 7s ease-in-out infinite;
+      animation-delay: calc(var(--i, 0) * 70ms), 0s; }
     @keyframes shimmer { 0%,100% { background-position: 100% 0 } 50% { background-position: 0% 0 } }
     .blueprint { animation: gridPan 28s linear infinite; }
     @keyframes gridPan { to { background-position: 46px 46px, 46px 46px } }
@@ -132,8 +140,51 @@
       opacity:0; transition: opacity .45s cubic-bezier(0.16,1,0.3,1); mix-blend-mode: screen;
       background: radial-gradient(280px circle at var(--mx,50%) var(--my,50%), rgba(var(--accent),.22), transparent 62%); }
     .spot:hover::after { opacity:1; }
-    .info-grid > div { background: rgba(30,21,66,.92); }
+    .info-grid > div { background: rgba(26,15,74,.92); }
 
+    /* 공식 포스터 연계: 앰비언트 · 라이트 트레일 · 포스터 카드 · 라이트박스 */
+    .poster-ambient { position:absolute; inset:-8%; background-size:cover; background-position:center; pointer-events:none;
+      filter: blur(38px) saturate(1.25); opacity:.42;
+      -webkit-mask-image: radial-gradient(55% 60% at 72% 48%, #000 15%, transparent 75%);
+              mask-image: radial-gradient(55% 60% at 72% 48%, #000 15%, transparent 75%); }
+    @media (max-width: 1023px) { .poster-ambient { -webkit-mask-image: radial-gradient(70% 45% at 50% 78%, #000 10%, transparent 75%); mask-image: radial-gradient(70% 45% at 50% 78%, #000 10%, transparent 75%); } }
+    .trails { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.7; }
+    .trails path { fill:none; vector-effect: non-scaling-stroke; }
+    .trails .base path { stroke: rgba(207,116,196,.16); stroke-width:1; }
+    .trails .spark path { stroke: url(#trailGrad); stroke-width:2; stroke-linecap:round; stroke-dasharray: 180 1600;
+      animation: trailRun 7s linear infinite; filter: drop-shadow(0 0 6px #f5d3f1); }
+    .trails .spark path:nth-child(2) { animation-duration: 9s; animation-delay: -3s; stroke-width:1.5; }
+    .trails .spark path:nth-child(3) { animation-duration: 11s; animation-delay: -6s; stroke-width:1.2; }
+    @keyframes trailRun { from { stroke-dashoffset: 1780 } to { stroke-dashoffset: 0 } }
+    .poster-wrap { perspective: 1200px; }
+    .poster-float { animation: float 8s ease-in-out infinite; }
+    .poster-glow { position:absolute; inset:6% -4% -2%; border-radius:2rem; filter: blur(46px); opacity:.7; pointer-events:none;
+      background: radial-gradient(60% 50% at 50% 35%, rgba(var(--accent),.55), transparent 70%), radial-gradient(60% 45% at 50% 80%, rgba(207,116,196,.45), transparent 70%);
+      animation: glowPulse 6s ease-in-out infinite; }
+    @keyframes glowPulse { 0%,100% { opacity:.55; transform:scale(.97) } 50% { opacity:.85; transform:scale(1.02) } }
+    .poster-card { position:relative; display:block; width:100%; padding:6px; border-radius:1.4rem; cursor:zoom-in; overflow:hidden;
+      background: linear-gradient(150deg, rgba(var(--accent),.55), rgba(255,255,255,.08) 38%, rgba(255,255,255,.04) 62%, rgba(207,116,196,.6));
+      box-shadow: 0 40px 90px -30px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.18);
+      transform: rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+      transition: transform .7s cubic-bezier(.16,1,.3,1), box-shadow .7s cubic-bezier(.16,1,.3,1); }
+    .poster-card:hover { box-shadow: 0 50px 110px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(207,116,196,.35), inset 0 1px 0 rgba(255,255,255,.2); }
+    .poster-card:focus-visible { outline: 2px solid rgba(207,116,196,.9); outline-offset: 4px; }
+    .poster-card img { display:block; width:100%; height:auto; border-radius:calc(1.4rem - 6px); }
+    .poster-sheen { position:absolute; inset:6px; border-radius:calc(1.4rem - 6px); pointer-events:none; mix-blend-mode: soft-light;
+      background: radial-gradient(420px circle at var(--sx,50%) var(--sy,0%), rgba(255,255,255,.45), transparent 55%);
+      opacity:0; transition: opacity .5s ease; }
+    .poster-card:hover .poster-sheen { opacity:1; }
+    .hud { position:absolute; z-index:2; width:46px; height:46px; border-radius:9999px; display:grid; place-items:center; font-size:22px;
+      color: rgb(207,116,196); background: rgba(255,255,255,.06); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 0 0 1px rgba(207,116,196,.45), 0 0 22px rgba(207,116,196,.35); animation: float 7s ease-in-out infinite; }
+    .hud::after { content:""; position:absolute; inset:-7px; border-radius:inherit; border:1px dashed rgba(var(--accent),.45); animation: auroraSpin 18s linear infinite; }
+    .hud-a { top:14%; left:-22px; }
+    .hud-b { top:46%; right:-24px; animation-delay:-2.5s; }
+    .hud-c { bottom:12%; left:-14px; animation-delay:-5s; }
+    .poster-dialog { padding:0; border:0; background:transparent; max-width:94vw; max-height:94vh; overflow:visible; color:inherit; }
+    .poster-dialog::backdrop { background: rgba(0,0,0,.8); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .poster-dialog[open] { animation: fadeInUp .45s cubic-bezier(.16,1,.3,1) both; }
+    .poster-dialog img { display:block; width:auto; height:auto; max-width:94vw; max-height:82vh; border-radius:1rem; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
     /* 접근성: reduced-motion 존중 */
     @media (prefers-reduced-motion: reduce) {
       *, .reveal, .float-a, .float-b, .orb { animation: none !important; }
@@ -176,29 +227,50 @@
   <!-- ===== HERO ===== -->
   <section id="top" class="relative overflow-hidden pt-32 pb-16 md:pb-20">
     <div class="absolute inset-0" style="background:
-      radial-gradient(65% 60% at 50% 18%, rgba(154,123,236,0.14) 0%, rgba(19,13,44,0) 60%),
-      linear-gradient(180deg, #130d2c 0%, #1e1542 55%, #2b1d56 100%);"></div>
+      radial-gradient(65% 60% at 50% 18%, rgba(154,123,236,0.14) 0%, rgba(17,10,51,0) 60%),
+      linear-gradient(180deg, #110a33 0%, #1a0f4a 55%, #26185e 100%);"></div>
     <div class="blueprint"></div>
+    <div class="poster-ambient" style="background-image:url('assets/vol4-poster-ambient.jpg')" aria-hidden="true"></div>
+    <svg class="trails" viewBox="0 0 1200 800" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="trailGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#b69cf6" stop-opacity="0" />
+          <stop offset=".55" stop-color="#f5d3f1" stop-opacity="1" />
+          <stop offset="1" stop-color="#ffffff" stop-opacity=".9" />
+        </linearGradient>
+      </defs>
+      <g class="base">
+        <path d="M-40 610 C 240 430, 520 700, 820 470 S 1140 300, 1240 360" />
+        <path d="M-40 690 C 300 540, 580 760, 880 560 S 1170 420, 1240 470" />
+        <path d="M-40 520 C 200 340, 600 600, 900 380 S 1160 220, 1240 270" />
+      </g>
+      <g class="spark">
+        <path d="M-40 610 C 240 430, 520 700, 820 470 S 1140 300, 1240 360" />
+        <path d="M-40 690 C 300 540, 580 760, 880 560 S 1170 420, 1240 470" />
+        <path d="M-40 520 C 200 340, 600 600, 900 380 S 1160 220, 1240 270" />
+      </g>
+    </svg>
     <div class="aurora"></div>
     <div class="particles" aria-hidden="true"></div>
     <div class="orb float-a" style="width:520px;height:520px;top:-140px;left:50%;transform:translateX(-50%);background:rgba(154,123,236,0.18);"></div>
     <div class="orb float-b" style="width:420px;height:420px;bottom:-160px;right:-80px;background:rgba(207,116,196,0.16);"></div>
     <div class="orb float-a" style="width:360px;height:360px;bottom:-120px;left:-100px;background:rgba(124,92,214,0.14);"></div>
 
-    <div class="relative max-w-5xl mx-auto px-5 text-center">
+    <div class="relative max-w-6xl mx-auto px-5 grid lg:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)] gap-14 lg:gap-12 items-center">
+     <div class="text-center lg:text-left">
       <p class="reveal in text-gold-300/90 tracking-[0.4em] text-[11px] md:text-xs mb-6" style="--i:0">농 식 품 의　미 래 ,　기 술 로　잇 다</p>
-      <h1 class="reveal in gold-text shimmer font-black leading-[1.06] text-[3.25rem] md:text-8xl mb-4 keep" style="--i:2">농식품<br class="md:hidden" /> 테마기술 파트너링</h1>
+      <h1 class="reveal in gold-text shimmer font-black leading-[1.06] text-[3.25rem] md:text-8xl lg:text-[3.4rem] xl:text-[4rem] mb-4 keep" style="--i:2">농식품<br class="md:hidden lg:inline" /> 테마기술 파트너링</h1>
       <p class="reveal in text-teal2-100/90 text-lg md:text-2xl font-medium keep mb-8" style="--i:3">기술이 지금, 농식품의 미래를 바꾼다</p>
 
-      <div class="reveal in inline-flex flex-wrap items-center justify-center gap-2 mb-4" style="--i:4">
+      <div class="reveal in inline-flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-4" style="--i:4">
         <span class="font-display rounded-full border border-gold-500/40 bg-gold-500/10 text-gold-200 text-sm font-semibold px-4 py-1.5">vol.04</span>
         <span class="font-display rounded-full border border-[rgba(var(--accent),0.45)] bg-[rgba(var(--accent),0.12)] text-teal2-100 text-sm font-semibold px-4 py-1.5">K-NATURAL BIO TECH</span>
       </div>
 
       <!-- 행사정보 (일시·장소·대상·참가비 통합) -->
-      <div id="info" class="reveal in relative max-w-3xl mx-auto mt-10 mb-8 scroll-mt-28" style="--i:6">
+      <div id="info" class="reveal in relative max-w-3xl mx-auto lg:mx-0 mt-10 mb-8 scroll-mt-28" style="--i:6">
         <div class="rounded-[1.5rem] bg-white/[0.05] ring-1 ring-white/10 p-1.5">
-        <div class="info-grid bezel-inner rounded-[calc(1.5rem-0.375rem)] overflow-hidden bg-white/10 grid grid-cols-2 md:grid-cols-4 gap-px">
+        <div class="info-grid bezel-inner rounded-[calc(1.5rem-0.375rem)] overflow-hidden bg-white/10 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-2 gap-px">
           <div class="flex items-start gap-3 p-4 md:p-5 text-left">
             <iconify-icon icon="solar:calendar-mark-bold-duotone" class="text-gold-400 text-2xl shrink-0 mt-0.5"></iconify-icon>
             <div><p class="text-[11px] uppercase tracking-widest text-teal2-300 mb-1">일시</p><p class="font-bold text-[15px] leading-snug keep">2026. 10. 14.(수)<br />14:00~17:00</p></div>
@@ -220,7 +292,7 @@
         <span class="ticks"></span>
       </div>
 
-      <div class="reveal in flex flex-col sm:flex-row items-center justify-center gap-3" style="--i:7">
+      <div class="reveal in flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3" style="--i:7">
         <a href="https://form.naver.com/response/EVmgGl5Z0b5" target="_blank" rel="noopener" class="spring cta-glow group inline-flex items-center gap-2 rounded-full bg-gold-500 text-teal2-950 font-bold pl-8 pr-2 py-2 hover:scale-[1.02] active:scale-[0.98]">
           참여 신청하기
           <span class="w-9 h-9 rounded-full bg-teal2-950/15 grid place-items-center">
@@ -236,12 +308,40 @@
       </div>
 
       <!-- 주최기관 -->
-      <div class="reveal in mt-10 flex flex-col items-center gap-2" style="--i:8">
+      <div class="reveal in mt-10 flex flex-col items-center lg:items-start gap-2" style="--i:8">
         <span class="text-teal2-400 text-xs tracking-widest">주최 · 주관</span>
         <p class="text-teal2-100 font-semibold text-base md:text-lg keep">국립원예특작과학원<span class="text-teal2-500 mx-2">·</span>한국농업기술진흥원<span class="text-gold-300 font-display ml-1.5">KOAT</span></p>
       </div>
+     </div>
+
+     <!-- 공식 포스터 -->
+     <figure class="reveal in poster-wrap relative mx-auto w-full max-w-[330px] sm:max-w-[370px] lg:max-w-[410px]" style="--i:5">
+       <div class="poster-glow" aria-hidden="true"></div>
+       <span class="hud hud-a" aria-hidden="true"><iconify-icon icon="solar:dna-bold-duotone"></iconify-icon></span>
+       <span class="hud hud-b" aria-hidden="true"><iconify-icon icon="solar:test-tube-bold-duotone"></iconify-icon></span>
+       <span class="hud hud-c" aria-hidden="true"><iconify-icon icon="solar:leaf-bold-duotone"></iconify-icon></span>
+       <div class="poster-float">
+         <button type="button" id="posterOpen" class="poster-card" aria-haspopup="dialog" aria-label="vol.04 공식 포스터 크게 보기">
+           <img src="assets/vol4-poster.jpg" alt="농식품 테마기술 파트너링 vol.04 K-NATURAL BIO TECH 공식 포스터 — 2026. 10. 14.(수) 14:00 서울성암아트홀" width="453" height="640" decoding="async" fetchpriority="high" />
+           <span class="poster-sheen" aria-hidden="true"></span>
+           <span class="absolute right-4 top-4 w-10 h-10 rounded-full bg-black/45 backdrop-blur ring-1 ring-white/20 grid place-items-center text-white text-lg" aria-hidden="true"><iconify-icon icon="solar:magnifer-zoom-in-linear"></iconify-icon></span>
+         </button>
+       </div>
+       <figcaption class="mt-5 flex items-center justify-center gap-2 text-xs text-teal2-300">
+         <span class="font-display tracking-[0.28em] text-gold-300">OFFICIAL POSTER</span><span class="text-teal2-600">·</span>눌러서 크게 보기
+       </figcaption>
+     </figure>
     </div>
   </section>
+
+  <!-- 포스터 라이트박스 -->
+  <dialog id="posterDialog" class="poster-dialog" aria-label="vol.04 공식 포스터">
+    <img src="assets/vol4-poster.jpg" alt="농식품 테마기술 파트너링 vol.04 K-NATURAL BIO TECH 공식 포스터 — 2026. 10. 14.(수) 14:00 서울성암아트홀" width="453" height="640" loading="lazy" />
+    <div class="mt-4 flex items-center justify-center gap-2">
+      <a href="assets/vol4-poster.jpg" download="농식품테마기술파트너링_vol.04_포스터.jpg" class="spring inline-flex items-center gap-2 rounded-full bg-gold-500 text-teal2-950 font-bold text-sm px-5 py-2.5 hover:scale-[1.03]"><iconify-icon icon="solar:download-minimalistic-bold" class="text-base"></iconify-icon>포스터 저장</a>
+      <form method="dialog"><button class="spring inline-flex items-center gap-2 rounded-full border border-white/25 text-white font-semibold text-sm px-5 py-2.5 hover:border-white/60"><iconify-icon icon="solar:close-circle-linear" class="text-base"></iconify-icon>닫기</button></form>
+    </div>
+  </dialog>
 
   <!-- ===== 테마 키워드 마퀴 ===== -->
   <div class="marquee" aria-hidden="true"><div class="marquee-track"></div></div>
@@ -389,8 +489,8 @@
   <!-- ===== REGISTER ===== -->
   <section id="register" class="relative py-20 md:py-24 overflow-hidden">
     <div class="absolute inset-0" style="background:
-      radial-gradient(70% 80% at 50% 50%, rgba(207,116,196,0.14) 0%, rgba(19,13,44,0) 60%),
-      linear-gradient(180deg, #2b1d56 0%, #130d2c 100%);"></div>
+      radial-gradient(70% 80% at 50% 50%, rgba(207,116,196,0.14) 0%, rgba(17,10,51,0) 60%),
+      linear-gradient(180deg, #26185e 0%, #110a33 100%);"></div>
     <div class="orb float-a" style="width:460px;height:460px;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(154,123,236,0.12);"></div>
     <div class="relative max-w-3xl mx-auto px-5 text-center">
       <h2 class="reveal gold-text text-3xl md:text-5xl font-black mb-5 keep">지금, 사전 참여를<br class="sm:hidden" /> 신청하세요</h2>
@@ -568,6 +668,30 @@
       renderFilters(current);
       render(current);
     });
+    // 공식 포스터: 라이트박스 + 3D 틸트
+    (() => {
+      const dlg = document.getElementById('posterDialog');
+      const btn = document.getElementById('posterOpen');
+      if (!dlg || !btn) return;
+      btn.addEventListener('click', () => {
+        if (typeof dlg.showModal === 'function') dlg.showModal();
+        else window.open(btn.querySelector('img').src, '_blank', 'noopener');
+      });
+      dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+      if (!matchMedia('(hover: hover) and (prefers-reduced-motion: no-preference)').matches) return;
+      btn.addEventListener('pointermove', (e) => {
+        const r = btn.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+        btn.style.setProperty('--ry', ((x - .5) * 12).toFixed(2) + 'deg');
+        btn.style.setProperty('--rx', ((.5 - y) * 12).toFixed(2) + 'deg');
+        btn.style.setProperty('--sx', (x * 100).toFixed(1) + '%');
+        btn.style.setProperty('--sy', (y * 100).toFixed(1) + '%');
+      });
+      btn.addEventListener('pointerleave', () => {
+        btn.style.setProperty('--ry', '0deg');
+        btn.style.setProperty('--rx', '0deg');
+      });
+    })();
   </script>
 </body>
 </html>
