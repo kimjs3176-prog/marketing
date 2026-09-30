@@ -100,6 +100,40 @@
     .orb.float-a { animation: float 9s ease-in-out infinite, auroraDrift 22s ease-in-out infinite; }
     .orb.float-b { animation: float 11s ease-in-out infinite, auroraDrift 26s ease-in-out infinite; }
 
+
+    /* ===== 모션그래픽 ===== */
+    .aurora { position:absolute; inset:-35%; pointer-events:none; opacity:.6; filter:blur(70px);
+      background: conic-gradient(from 0deg at 50% 50%, rgba(var(--accent),0) 0deg, rgba(var(--accent),.24) 70deg,
+        rgba(201,162,74,.18) 140deg, rgba(var(--accent),0) 210deg, rgba(var(--accent),.20) 290deg, rgba(var(--accent),0) 360deg);
+      animation: auroraSpin 40s linear infinite; }
+    @keyframes auroraSpin { to { transform: rotate(360deg) } }
+    .particles { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+    .particles span { position:absolute; bottom:-12px; border-radius:9999px; opacity:0;
+      background: rgba(236,217,168,.85); box-shadow: 0 0 10px rgba(224,196,127,.7);
+      animation-name: rise; animation-timing-function: linear; animation-iteration-count: infinite; }
+    @keyframes rise { 0% { transform: translateY(0); opacity:0 } 12% { opacity:.9 } 85% { opacity:.6 } 100% { transform: translateY(-820px); opacity:0 } }
+    .gold-text.shimmer { background: linear-gradient(100deg,#c9a24a 0%,#e0c47f 28%,#fff6dc 46%,#e0c47f 62%,#c9a24a 100%);
+      background-size: 260% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+      animation: shimmer 7s ease-in-out infinite; }
+    @keyframes shimmer { 0%,100% { background-position: 100% 0 } 50% { background-position: 0% 0 } }
+    .blueprint { animation: gridPan 28s linear infinite; }
+    @keyframes gridPan { to { background-position: 46px 46px, 46px 46px } }
+    .marquee { position:relative; overflow:hidden; background: rgba(255,255,255,.02);
+      border-block: 1px solid rgba(255,255,255,.06);
+      -webkit-mask-image: linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+              mask-image: linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent); }
+    .marquee-track { display:flex; width:max-content; animation: marquee 38s linear infinite; padding:.95rem 0; }
+    .marquee-item { display:inline-flex; align-items:center; white-space:nowrap; padding-right:2.75rem;
+      font-family:'Space Grotesk','Pretendard',sans-serif; font-weight:600; letter-spacing:.06em;
+      font-size:.95rem; color: rgba(211,242,236,.6); }
+    .marquee-item::after { content:"✦"; margin-left:2.75rem; color: rgba(201,162,74,.75); font-size:.7rem; }
+    @keyframes marquee { to { transform: translateX(-50%) } }
+    .spot::after { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:2;
+      opacity:0; transition: opacity .45s cubic-bezier(0.16,1,0.3,1); mix-blend-mode: screen;
+      background: radial-gradient(280px circle at var(--mx,50%) var(--my,50%), rgba(var(--accent),.22), transparent 62%); }
+    .spot:hover::after { opacity:1; }
+    .info-grid > div { background: rgba(10,46,42,.92); }
+
     /* 접근성: reduced-motion 존중 */
     @media (prefers-reduced-motion: reduce) {
       *, .reveal, .float-a, .float-b, .orb { animation: none !important; }
@@ -109,7 +143,7 @@
 
   </style>
 </head>
-<body class="text-teal2-50 antialiased overflow-x-hidden">
+<body data-theme="SMART AGRI-FRESH TECH" class="text-teal2-50 antialiased overflow-x-hidden">
   <div class="noise"></div>
   <div class="scroll-prog"></div>
 
@@ -144,14 +178,15 @@
       radial-gradient(65% 60% at 50% 18%, rgba(63,181,164,0.14) 0%, rgba(6,32,29,0) 60%),
       linear-gradient(180deg, #06201d 0%, #0a2e2a 55%, #0d3833 100%);"></div>
     <div class="blueprint"></div>
+    <div class="aurora"></div>
+    <div class="particles" aria-hidden="true"></div>
     <div class="orb float-a" style="width:520px;height:520px;top:-140px;left:50%;transform:translateX(-50%);background:rgba(63,181,164,0.18);"></div>
     <div class="orb float-b" style="width:420px;height:420px;bottom:-160px;right:-80px;background:rgba(201,162,74,0.16);"></div>
     <div class="orb float-a" style="width:360px;height:360px;bottom:-120px;left:-100px;background:rgba(39,151,136,0.14);"></div>
 
     <div class="relative max-w-5xl mx-auto px-5 text-center">
       <p class="reveal in text-gold-300/90 tracking-[0.4em] text-[11px] md:text-xs mb-6" style="--i:0">농 식 품 의　미 래 ,　기 술 로　잇 다</p>
-      <p class="reveal in font-display text-teal2-200 text-xs md:text-sm tracking-[0.18em] mb-5" style="--i:1">NEXT-GEN FOOD TECH · PROCESSING TO STORAGE</p>
-      <h1 class="reveal in gold-text font-black leading-[1.06] text-[3.25rem] md:text-8xl mb-4 keep" style="--i:2">농식품<br class="md:hidden" /> 테마기술 파트너링</h1>
+      <h1 class="reveal in gold-text shimmer font-black leading-[1.06] text-[3.25rem] md:text-8xl mb-4 keep" style="--i:2">농식품<br class="md:hidden" /> 테마기술 파트너링</h1>
       <p class="reveal in text-teal2-100/90 text-lg md:text-2xl font-medium keep mb-8" style="--i:3">기술이 지금, 농식품의 미래를 바꾼다</p>
 
       <div class="reveal in inline-flex flex-wrap items-center justify-center gap-2 mb-4" style="--i:4">
@@ -159,20 +194,29 @@
         <span class="font-display rounded-full border border-[rgba(var(--accent),0.45)] bg-[rgba(var(--accent),0.12)] text-teal2-100 text-sm font-semibold px-4 py-1.5">SMART AGRI-FRESH TECH</span>
       </div>
 
-      <!-- 일시/장소 double-bezel -->
-      <div class="reveal in grid sm:grid-cols-2 gap-4 max-w-2xl mx-auto mt-10 mb-8" style="--i:6">
-        <div class="rounded-[1.75rem] bg-white/[0.05] ring-1 ring-white/10 p-1.5">
-          <div class="bezel-inner rounded-[calc(1.75rem-0.375rem)] bg-teal2-900/60 backdrop-blur px-5 py-5 flex items-center gap-4 text-left">
-            <iconify-icon icon="solar:calendar-bold-duotone" class="text-gold-400 text-3xl shrink-0"></iconify-icon>
-            <div><p class="text-[11px] uppercase tracking-widest text-teal2-300 mb-1">Date</p><p class="text-lg font-bold">2026. 9. 9.(수) 14:00</p></div>
+      <!-- 행사정보 (일시·장소·대상·참가비 통합) -->
+      <div id="info" class="reveal in relative max-w-3xl mx-auto mt-10 mb-8 scroll-mt-28" style="--i:6">
+        <div class="rounded-[1.5rem] bg-white/[0.05] ring-1 ring-white/10 p-1.5">
+        <div class="info-grid bezel-inner rounded-[calc(1.5rem-0.375rem)] overflow-hidden bg-white/10 grid grid-cols-2 md:grid-cols-4 gap-px">
+          <div class="flex items-start gap-3 p-4 md:p-5 text-left">
+            <iconify-icon icon="solar:calendar-mark-bold-duotone" class="text-gold-400 text-2xl shrink-0 mt-0.5"></iconify-icon>
+            <div><p class="text-[11px] uppercase tracking-widest text-teal2-300 mb-1">일시</p><p class="font-bold text-[15px] leading-snug keep">2026. 9. 9.(수)<br />오후 2시</p></div>
+          </div>
+          <div class="flex items-start gap-3 p-4 md:p-5 text-left">
+            <iconify-icon icon="solar:map-point-wave-bold-duotone" class="text-gold-400 text-2xl shrink-0 mt-0.5"></iconify-icon>
+            <div><p class="text-[11px] uppercase tracking-widest text-teal2-300 mb-1">장소</p><p class="font-bold text-[15px] leading-snug keep">서울성암아트홀</p></div>
+          </div>
+          <div class="flex items-start gap-3 p-4 md:p-5 text-left">
+            <iconify-icon icon="solar:users-group-two-rounded-bold-duotone" class="text-gold-400 text-2xl shrink-0 mt-0.5"></iconify-icon>
+            <div><p class="text-[11px] uppercase tracking-widest text-teal2-300 mb-1">참가대상</p><p class="font-bold text-[15px] leading-snug keep">기술이전 희망기업<br />연구자·관계자</p></div>
+          </div>
+          <div class="flex items-start gap-3 p-4 md:p-5 text-left">
+            <iconify-icon icon="solar:ticket-bold-duotone" class="text-gold-400 text-2xl shrink-0 mt-0.5"></iconify-icon>
+            <div><p class="text-[11px] uppercase tracking-widest text-teal2-300 mb-1">참가비</p><p class="font-bold text-[15px] leading-snug keep">무료<br />(사전등록)</p></div>
           </div>
         </div>
-        <div class="rounded-[1.75rem] bg-white/[0.05] ring-1 ring-white/10 p-1.5">
-          <div class="bezel-inner rounded-[calc(1.75rem-0.375rem)] bg-teal2-900/60 backdrop-blur px-5 py-5 flex items-center gap-4 text-left">
-            <iconify-icon icon="solar:map-point-wave-bold-duotone" class="text-gold-400 text-3xl shrink-0"></iconify-icon>
-            <div><p class="text-[11px] uppercase tracking-widest text-teal2-300 mb-1">Venue</p><p class="text-lg font-bold">서울성암아트홀</p></div>
-          </div>
         </div>
+        <span class="ticks"></span>
       </div>
 
       <div class="reveal in flex flex-col sm:flex-row items-center justify-center gap-3" style="--i:7">
@@ -198,6 +242,9 @@
     </div>
   </section>
 
+  <!-- ===== 테마 키워드 마퀴 ===== -->
+  <div class="marquee" aria-hidden="true"><div class="marquee-track"></div></div>
+
   <!-- ===== PROGRAM ===== -->
   <section id="about" class="relative py-10 md:py-16 bg-teal2-950">
     <div class="max-w-5xl mx-auto px-5">
@@ -213,7 +260,7 @@
               <iconify-icon icon="solar:test-tube-bold-duotone" class="text-gold-400 text-xl shrink-0"></iconify-icon>
               <h3 class="font-bold text-[15px] leading-tight keep">테마기술 소개</h3>
             </div>
-            <p class="text-xs text-teal2-200 keep leading-snug">농축산 가공·안전, 디지털 품질측정·관리, 농산물 정밀제어·저장</p>
+            <p class="text-xs text-teal2-200 keep leading-snug">분야별 핵심 특허기술을 연구자가 직접 발표</p>
           </div>
         </div>
         <div class="reveal spring rounded-2xl bg-white/[0.04] ring-1 ring-white/10 p-1 hover:-translate-y-1" style="--i:1">
@@ -247,25 +294,6 @@
     </div>
   </section>
 
-  <!-- ===== EVENT INFO ===== -->
-  <section id="info" class="py-6 md:py-10">
-    <div class="max-w-4xl mx-auto px-5">
-      <div class="reveal relative rounded-[1.5rem] bg-white/[0.05] ring-1 ring-white/10 p-1.5">
-        <span class="ticks"></span>
-        <div class="bezel-inner rounded-[calc(1.5rem-0.375rem)] bg-gradient-to-br from-teal2-800/70 to-teal2-900/70 p-5 md:p-6 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-4 text-center">
-          <div><iconify-icon icon="solar:calendar-mark-bold-duotone" class="text-gold-400 text-2xl"></iconify-icon>
-            <p class="text-[11px] uppercase tracking-widest text-teal2-300 mt-2">일시</p><p class="font-bold mt-1 keep">2026. 9. 9.(수)<br />오후 2시</p></div>
-          <div><iconify-icon icon="solar:map-point-bold-duotone" class="text-gold-400 text-2xl"></iconify-icon>
-            <p class="text-[11px] uppercase tracking-widest text-teal2-300 mt-2">장소</p><p class="font-bold mt-1">서울성암아트홀</p></div>
-          <div><iconify-icon icon="solar:users-group-two-rounded-bold-duotone" class="text-gold-400 text-2xl"></iconify-icon>
-            <p class="text-[11px] uppercase tracking-widest text-teal2-300 mt-2">참가대상</p><p class="font-bold mt-1 keep">기술이전 희망기업<br />연구자·관계자</p></div>
-          <div><iconify-icon icon="solar:ticket-bold-duotone" class="text-gold-400 text-2xl"></iconify-icon>
-            <p class="text-[11px] uppercase tracking-widest text-teal2-300 mt-2">참가비</p><p class="font-bold mt-1 keep">무료<br />(사전등록)</p></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ===== TECH GRID ===== -->
   <section id="tech" class="relative py-10 md:py-16 bg-teal2-950 overflow-hidden">
     <div class="orb float-b" style="width:400px;height:400px;top:10%;right:-140px;background:rgba(201,162,74,0.10);"></div>
@@ -279,7 +307,6 @@
       <div id="filters" class="reveal flex flex-wrap items-center justify-center gap-2.5 mb-12" style="--i:3"></div>
       <div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
 
-      <p class="mt-10 text-center text-xs text-teal2-400/80 keep">※ 특허 요약은 명세서 초록을 바탕으로 간략히 정리한 홍보용 요약입니다. 상세 내용은 설명회 및 기술상담을 통해 확인하실 수 있습니다.</p>
     </div>
   </section>
 
@@ -288,8 +315,7 @@
     <div class="max-w-5xl mx-auto px-5">
       <div class="text-center max-w-2xl mx-auto mb-12">
         <span class="reveal inline-block rounded-full px-3 py-1 text-[11px] uppercase tracking-[0.15em] font-medium bg-gold-500/10 text-gold-300 mb-4">Location</span>
-        <h2 class="reveal text-3xl md:text-4xl font-bold mb-4 keep" style="--i:1">오시는 길</h2>
-        <p class="reveal text-teal2-200 keep leading-snug" style="--i:2">행사장은 <span class="text-teal2-50 font-semibold">서울성암아트홀</span> 입니다. 아래 지도·공식 홈페이지에서 위치와 교통편을 확인하세요.</p>
+        <h2 class="reveal text-3xl md:text-4xl font-bold keep" style="--i:1">오시는 길</h2>
       </div>
 
       <div class="reveal rounded-[2rem] bg-white/[0.05] ring-1 ring-white/10 p-1.5">
@@ -365,13 +391,10 @@
     <div class="max-w-6xl mx-auto px-5 grid md:grid-cols-2 gap-8 items-center">
       <div>
         <p class="font-bold text-lg">농식품 테마기술 파트너링 <span class="text-gold-400 font-display">vol.02</span></p>
-        <p class="text-sm text-teal2-300 mt-1 keep">SMART AGRI-FRESH TECH · 2026. 9. 9.(수) 14:00 · 서울성암아트홀</p>
-        <p class="text-sm text-teal2-300 mt-3 keep">주최·주관 &nbsp;국립농업과학원 · 한국농업기술진흥원(KOAT)</p>
-        <p class="text-xs text-teal2-400 mt-3 keep">테마기술 파트너링 시리즈 &nbsp;<span class="text-gold-300 font-semibold">vol.02</span> <span class="text-teal2-600">·</span> <a class="hover:text-gold-300 spring" href="vol3.html">vol.03</a> <span class="text-teal2-600">·</span> <a class="hover:text-gold-300 spring" href="vol4.html">vol.04</a></p>
+        <p class="text-xs text-teal2-400 mt-2 keep">테마기술 파트너링 시리즈 &nbsp;<span class="text-gold-300 font-semibold">vol.02</span> <span class="text-teal2-600">·</span> <a class="hover:text-gold-300 spring" href="vol3.html">vol.03</a> <span class="text-teal2-600">·</span> <a class="hover:text-gold-300 spring" href="vol4.html">vol.04</a></p>
       </div>
       <div class="md:text-right text-sm text-teal2-300 keep">
         <p><iconify-icon icon="solar:letter-bold-duotone" class="text-gold-400 align-middle"></iconify-icon> 문의 : 기술이전·지원사업 상담 데스크</p>
-        <a href="https://smore.im/form/eVRXQuGqFu" target="_blank" rel="noopener" class="spring inline-flex items-center gap-1.5 mt-2 text-gold-300 hover:text-gold-200 font-semibold">참여 신청 바로가기 <iconify-icon icon="solar:arrow-right-up-linear"></iconify-icon></a>
       </div>
     </div>
   </footer>
@@ -424,7 +447,7 @@
     function card(p, i) {
       const cat = CATS[p.cat];
       return `
-      <article data-cat="${p.cat}" style="--i:${i}" class="reveal spring rounded-[1.75rem] bg-white/[0.045] ring-1 ring-white/10 p-1.5 hover:-translate-y-1.5 hover:ring-gold-500/40">
+      <article data-cat="${p.cat}" style="--i:${i}" class="reveal spring spot rounded-[1.75rem] bg-white/[0.045] ring-1 ring-white/10 p-1.5 hover:-translate-y-1.5 hover:ring-gold-500/40">
         <div class="bezel-inner rounded-[calc(1.75rem-0.375rem)] bg-teal2-900/60 p-6 flex flex-col h-full">
           <div class="flex items-start justify-between gap-3 mb-4">
             <div class="w-12 h-12 rounded-xl grid place-items-center bg-white/5 ring-1 ${tone(cat.color)}">
@@ -471,6 +494,58 @@
     renderFilters(current);
     render(current);
     observe(document.querySelectorAll('.reveal:not(#grid .reveal)'));
+
+
+    // ===== 모션그래픽 =====
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // 떠오르는 파티클
+    (function () {
+      const box = document.querySelector('.particles');
+      if (!box || reduceMotion) return;
+      for (let i = 0; i < 26; i++) {
+        const s = document.createElement('span');
+        const z = (1 + Math.random() * 2.6).toFixed(1) + 'px';
+        s.style.width = s.style.height = z;
+        s.style.left = (Math.random() * 100).toFixed(1) + '%';
+        s.style.animationDuration = (9 + Math.random() * 11).toFixed(1) + 's';
+        s.style.animationDelay = (-Math.random() * 18).toFixed(1) + 's';
+        box.appendChild(s);
+      }
+    })();
+    // 테마 키워드 마퀴
+    (function () {
+      const track = document.querySelector('.marquee-track');
+      if (!track) return;
+      const words = [document.body.dataset.theme, ...Object.values(CATS).map(c => c.label), '농식품 테마기술 파트너링', 'TECH PARTNERING 2026'];
+      const html = words.map(w => `<span class="marquee-item">${w}</span>`).join('');
+      track.innerHTML = html + html;
+    })();
+    // 특허 수 카운트업
+    (function () {
+      const el = document.getElementById('techCount');
+      const n = PATENTS.length;
+      if (!el || reduceMotion) return;
+      const io2 = new IntersectionObserver((es) => {
+        if (!es.some(e => e.isIntersecting)) return;
+        io2.disconnect();
+        const t0 = performance.now(), d = 1100;
+        const step = (t) => {
+          const p = Math.min(1, (t - t0) / d);
+          el.textContent = Math.round(n * (1 - Math.pow(1 - p, 3))) + '건';
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }, { threshold: 0.5 });
+      io2.observe(el);
+    })();
+    // 카드 커서 스포트라이트
+    grid.addEventListener('pointermove', (e) => {
+      const c = e.target.closest('article');
+      if (!c) return;
+      const r = c.getBoundingClientRect();
+      c.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
 
     filters.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-f]');
