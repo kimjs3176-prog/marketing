@@ -8,7 +8,7 @@
   <meta property="og:title" content="농식품 테마기술 파트너링 vol.04 — K-Natural Bio Tech" />
   <meta property="og:description" content="농식품의 미래, 기술로 잇다 — 2026. 10. 14.(수) 14:00 서울 성암아트홀" />
   <meta property="og:type" content="website" />
-  <meta name="theme-color" content="#06201d" />
+  <meta name="theme-color" content="#130d2c" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,9 +25,9 @@
           },
           colors: {
             teal2: {
-              50: '#eefaf7', 100: '#d3f2ec', 200: '#a9e5da', 300: '#72d1c2',
-              400: '#3fb5a4', 500: '#279788', 600: '#1e7a6f', 700: '#1c615a',
-              800: '#0d3833', 900: '#0a2e2a', 950: '#06201d'
+              50: '#f5f1ff', 100: '#e8defe', 200: '#d2c1fb', 300: '#b69cf6',
+              400: '#9a7bec', 500: '#7c5cd6', 600: '#6346b6', 700: '#4c3591',
+              800: '#2b1d56', 900: '#1e1542', 950: '#130d2c'
             },
             gold: {
               100: '#f6ecd2', 200: '#ecd9a8', 300: '#e0c47f', 400: '#d8b978',
@@ -40,10 +40,10 @@
   </script>
   <style>
     html { scroll-behavior: smooth; }
-    body { font-family: 'Pretendard', system-ui, sans-serif; background: #06201d; }
+    body { font-family: 'Pretendard', system-ui, sans-serif; background: #130d2c; }
 
     /* ===== design-isms: generative-identity 회차별 액센트 ===== */
-    :root { --accent: 93,181,106; }
+    :root { --accent: 196,158,255; }
     /* ===== design-isms: 스크롤 진행 표시 (micro-interaction, JS 불필요) ===== */
     .scroll-prog { position: fixed; top: 0; left: 0; height: 3px; width: 100%; z-index: 70;
       transform-origin: 0 50%; transform: scaleX(0);
@@ -85,8 +85,8 @@
     /* technical-blueprint: 옅은 도면 그리드 + 코너 치수 마크 */
     .blueprint { position:absolute; inset:0; pointer-events:none; opacity:.6;
       background-image:
-        linear-gradient(rgba(114,209,194,0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(114,209,194,0.05) 1px, transparent 1px);
+        linear-gradient(rgba(182,156,246,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(182,156,246,0.05) 1px, transparent 1px);
       background-size: 46px 46px;
       -webkit-mask: radial-gradient(125% 85% at 50% 0%, #000 42%, transparent 76%);
               mask: radial-gradient(125% 85% at 50% 0%, #000 42%, transparent 76%); }
@@ -125,14 +125,14 @@
     .marquee-track { display:flex; width:max-content; animation: marquee 38s linear infinite; padding:.95rem 0; }
     .marquee-item { display:inline-flex; align-items:center; white-space:nowrap; padding-right:2.75rem;
       font-family:'Space Grotesk','Pretendard',sans-serif; font-weight:600; letter-spacing:.06em;
-      font-size:.95rem; color: rgba(211,242,236,.6); }
+      font-size:.95rem; color: rgba(232,222,254,.6); }
     .marquee-item::after { content:"✦"; margin-left:2.75rem; color: rgba(201,162,74,.75); font-size:.7rem; }
     @keyframes marquee { to { transform: translateX(-50%) } }
     .spot::after { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; z-index:2;
       opacity:0; transition: opacity .45s cubic-bezier(0.16,1,0.3,1); mix-blend-mode: screen;
       background: radial-gradient(280px circle at var(--mx,50%) var(--my,50%), rgba(var(--accent),.22), transparent 62%); }
     .spot:hover::after { opacity:1; }
-    .info-grid > div { background: rgba(10,46,42,.92); }
+    .info-grid > div { background: rgba(30,21,66,.92); }
 
     /* 접근성: reduced-motion 존중 */
     @media (prefers-reduced-motion: reduce) {
@@ -176,14 +176,14 @@
   <!-- ===== HERO ===== -->
   <section id="top" class="relative overflow-hidden pt-32 pb-16 md:pb-20">
     <div class="absolute inset-0" style="background:
-      radial-gradient(65% 60% at 50% 18%, rgba(63,181,164,0.14) 0%, rgba(6,32,29,0) 60%),
-      linear-gradient(180deg, #06201d 0%, #0a2e2a 55%, #0d3833 100%);"></div>
+      radial-gradient(65% 60% at 50% 18%, rgba(154,123,236,0.14) 0%, rgba(19,13,44,0) 60%),
+      linear-gradient(180deg, #130d2c 0%, #1e1542 55%, #2b1d56 100%);"></div>
     <div class="blueprint"></div>
     <div class="aurora"></div>
     <div class="particles" aria-hidden="true"></div>
-    <div class="orb float-a" style="width:520px;height:520px;top:-140px;left:50%;transform:translateX(-50%);background:rgba(63,181,164,0.18);"></div>
+    <div class="orb float-a" style="width:520px;height:520px;top:-140px;left:50%;transform:translateX(-50%);background:rgba(154,123,236,0.18);"></div>
     <div class="orb float-b" style="width:420px;height:420px;bottom:-160px;right:-80px;background:rgba(201,162,74,0.16);"></div>
-    <div class="orb float-a" style="width:360px;height:360px;bottom:-120px;left:-100px;background:rgba(39,151,136,0.14);"></div>
+    <div class="orb float-a" style="width:360px;height:360px;bottom:-120px;left:-100px;background:rgba(124,92,214,0.14);"></div>
 
     <div class="relative max-w-5xl mx-auto px-5 text-center">
       <p class="reveal in text-gold-300/90 tracking-[0.4em] text-[11px] md:text-xs mb-6" style="--i:0">농 식 품 의　미 래 ,　기 술 로　잇 다</p>
@@ -389,9 +389,9 @@
   <!-- ===== REGISTER ===== -->
   <section id="register" class="relative py-20 md:py-24 overflow-hidden">
     <div class="absolute inset-0" style="background:
-      radial-gradient(70% 80% at 50% 50%, rgba(201,162,74,0.14) 0%, rgba(6,32,29,0) 60%),
-      linear-gradient(180deg, #0d3833 0%, #06201d 100%);"></div>
-    <div class="orb float-a" style="width:460px;height:460px;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(63,181,164,0.12);"></div>
+      radial-gradient(70% 80% at 50% 50%, rgba(201,162,74,0.14) 0%, rgba(19,13,44,0) 60%),
+      linear-gradient(180deg, #2b1d56 0%, #130d2c 100%);"></div>
+    <div class="orb float-a" style="width:460px;height:460px;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(154,123,236,0.12);"></div>
     <div class="relative max-w-3xl mx-auto px-5 text-center">
       <h2 class="reveal gold-text text-3xl md:text-5xl font-black mb-5 keep">지금, 사전 참여를<br class="sm:hidden" /> 신청하세요</h2>
       <p class="reveal text-teal2-100 keep mb-9 leading-snug" style="--i:1">현장 기술상담과 이전 매칭은 사전등록 참가자에게 우선 안내됩니다.</p>
@@ -413,7 +413,8 @@
         <p class="text-xs text-teal2-400 mt-2 keep">테마기술 파트너링 시리즈 &nbsp;<a class="hover:text-gold-300 spring" href="index.html">vol.02</a> <span class="text-teal2-600">·</span> <a class="hover:text-gold-300 spring" href="vol3.html">vol.03</a> <span class="text-teal2-600">·</span> <span class="text-gold-300 font-semibold">vol.04</span></p>
       </div>
       <div class="md:text-right text-sm text-teal2-300 keep">
-        <p><iconify-icon icon="solar:letter-bold-duotone" class="text-gold-400 align-middle"></iconify-icon> 문의 : 기술이전·지원사업 상담 데스크</p>
+        <p class="font-semibold text-teal2-100"><iconify-icon icon="solar:letter-bold-duotone" class="text-gold-400 align-middle"></iconify-icon> 문의 · 한국농업기술진흥원 기술거래이전팀</p>
+        <p class="mt-1.5"><a class="spring hover:text-gold-300" href="mailto:kimjs1408@koat.or.kr">kimjs1408@koat.or.kr</a> <span class="text-teal2-600 mx-1">·</span> <a class="spring hover:text-gold-300" href="tel:063-919-1325">063-919-1325</a></p>
       </div>
     </div>
   </footer>
