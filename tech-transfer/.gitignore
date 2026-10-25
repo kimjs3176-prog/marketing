@@ -1,0 +1,9 @@
+data/
+output/
+*.hwpx
+*.pdf
+*.xlsx
+*.bmp
+.env
+.kipris_key
+.ais_anon
