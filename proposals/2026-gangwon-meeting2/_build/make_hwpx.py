@@ -93,7 +93,8 @@ def section(md, name):
 
 
 def sentences(text, n):
-    text = re.sub(r"(?<!\*)\*(?!\*)([^*]+?)(?<!\*)\*(?!\*)", r"\1", text.replace("`", ""))  # 기울임·코드 표기 제거, **굵게**만 유지
+    # 기울임(*)·코드(`) 표기 제거, **굵게**만 유지
+    text = "**".join(part.replace("*", "") for part in text.replace("`", "").split("**"))
     return " ".join(re.split(r"(?<=다\.)\s+", text)[:n])
 
 
