@@ -25,6 +25,8 @@
 | `vol4.html` | 파트너링 vol.04 · K-Natural Bio Tech — 국립원예특작과학원 (2026. 10. 14. · 서울 성암아트홀) |
 | `patents.html` | 천연물 × 유산균 발효 바이오소재 특허 3선 — 10-2839159(오가피 열매 발효 면역증진) · 10-2185438(발효오디 항산화) · 10-2024-0165540(식방풍 신바이오틱스) |
 | `yumang-tech-seminar.html` | (이전) 농식품 유망기술 설명회 (2026. 9. 14. · ST 과학기술컨벤션센터) |
+| `slides/ais-introduction.html` | 발표자료 — AIS(Agri IP Summary) 서비스 소개 (11장, 1920×1080) |
+| `slides/nati-tech-transfer-guide.html` | 발표자료 — NATI 국유특허 기술이전 신청 가이드 (11장, 1920×1080) |
 
 ### 공식 포스터 (vol.03 · vol.04)
 
@@ -57,3 +59,9 @@
 python3 -m http.server 8080 --directory docs
 # http://localhost:8080
 ```
+
+## 발표자료(slides/) 조작
+
+- 다음/이전: `→` `←` · `Space` · `PageUp/Down` · 마우스 휠 · 스와이프, `Home`/`End` 처음/끝
+- `E` 키(또는 좌측 상단 모서리): 제목 편집 모드 · `#p3`처럼 주소 뒤에 붙이면 3번째 장으로 바로 열림
+- 인쇄(PDF 저장) 시 모든 장이 애니메이션 없이 최종 상태로 출력됩니다. 시스템의 '동작 줄이기' 설정을 켜면 움직임이 최소화됩니다.
