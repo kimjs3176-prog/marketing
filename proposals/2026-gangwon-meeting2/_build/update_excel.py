@@ -6,7 +6,9 @@ import openpyxl
 from openpyxl.styles import Alignment
 
 src, out = sys.argv[1], sys.argv[2]
-matches = json.loads((Path(__file__).parent / "matches.json").read_text(encoding="utf-8"))
+here = Path(__file__).parent
+load = lambda n: json.loads((here / n).read_text(encoding="utf-8")) if (here / n).exists() else {}
+selection, kipris, ais = load("selection.json"), load("kipris.json"), load("ais.json")
 NUM = "①②③④⑤"
 
 wb = openpyxl.load_workbook(src)
@@ -20,13 +22,15 @@ for a in ("font", "fill", "border", "alignment", "number_format"):
 
 for r in range(hdr_row + 1, ws.max_row + 1):
     code = ws.cell(r, 3).value
-    m = matches.get(code)
-    if not m:
+    apps = selection.get(code)
+    if not apps:
         continue
     lines = []
-    for i, p in enumerate(m["patents"]):
-        no = f"등록 {p['reg']}" if p["reg"] else f"출원 {p['app']}"
-        lines.append(f"{NUM[i]} {p['title']} ({no}) [적합도 {p['fit']}]")
+    for i, a in enumerate(apps):
+        k = kipris[a]
+        no = f"등록 {k['regNo']}" if k["status"] == "등록" else f"공개 {k['appNo']}"
+        score = (ais.get(a) or {}).get("score")
+        lines.append(f"{NUM[i]} {k['title']} ({no})" + (f" [AIS 종합 {score}점]" if score is not None else ""))
     c = ws.cell(r, col, "\n".join(lines))
     body = ws.cell(r, 13)
     c.font, c.border = copy(body.font), copy(body.border)
@@ -38,7 +42,7 @@ wb.save(out)
 companies = []
 for r in range(hdr_row + 1, ws.max_row + 1):
     code = ws.cell(r, 3).value
-    if code in matches:
+    if code in selection:
         g = lambda c: ws.cell(r, c).value or ""
         companies.append({"code": code, "manager": g(4), "name": g(5), "cat": g(10),
                           "field": g(11), "sub": g(12), "item": g(13)})
