@@ -6,6 +6,8 @@ from datetime import date
 from pathlib import Path
 from xml.sax.saxutils import escape
 
+import layout
+
 HERE = Path(__file__).parent
 OUT = HERE.parent / "제안서"
 TODAY = date(2026, 10, 26)
@@ -20,6 +22,9 @@ tpl = zipfile.ZipFile(HERE / "template.hwpx")
 SEC = tpl.read("Contents/section0.xml").decode("utf-8")
 HEAD, BODY_START = SEC[:SEC.index("<hp:p ")], SEC.index("<hp:p ")
 TAIL = SEC[SEC.rindex("</hs:sec>"):]
+layout.init(tpl.read("Contents/header.xml").decode("utf-8"))
+WIDTH = 49324                 # 본문 폭(용지 59528 - 좌우 여백 5102×2)
+BODY_MAX, ATT_MAX = 71200, 72779  # 첨부 양식 본문·붙임 페이지의 추정 높이 — 이 이하면 1페이지에 들어감
 
 
 def top_paragraphs(xml):
@@ -102,6 +107,10 @@ def pno(k):
     return k["appNo"] if k["status"] != "등록" else f"{k['appNo']}, 등록 {k['regNo']}"
 
 
+def page_h(frags):
+    return sum(layout.top_height(f, WIDTH)[0] for f in frags)
+
+
 def build(c):
     code = c["code"]
     P, apps = props[code], selection[code]
@@ -122,7 +131,7 @@ def build(c):
                      for i, ((e, _), k) in enumerate(zip(exp, K)))
     yrs = sorted(r for _, r in exp)
     n_open = sum(k["status"] != "등록" for k in K)
-    form = f"통상실시권 {len(K)}건" + (f" · 공개특허 {n_open}건(등록 후 권리 확정)" if n_open else "") + " · 응용범위 검토"
+    form = f"통상실시권 {len(K)}건" + (f"(공개 {n_open}건 포함)" if n_open else "") + " · 응용범위 검토"
     out += [T[9], T[10],
             body_bullet("권리기간", f"{terms} 만료 · 잔여 {yrs[0]}∼{yrs[-1]}년" if yrs[0] != yrs[-1] else f"{terms} 만료 · 잔여 약 {yrs[0]}년"),
             body_bullet("인허가", P["permit"]),
@@ -134,18 +143,28 @@ def build(c):
             set_texts(T[19], [f"  ⇒ {P['goal']}"]),
             T[20],
             set_texts(T[21], [f"    ※ KIPRIS Plus 검증({TODAY.year}. {TODAY.month}. {TODAY.day}.) 농진청 단독·10년 내 출원 / 붙임 AI 요약서"]),
-            T[22]]
+            ]
+    if page_h(out) > BODY_MAX:  # 특허명이 길어 넘치면 본문 빈 줄(4개)만 작은 글자(8pt)로 줄여 1페이지에 맞춘다
+        for j in (2, 6, 9, 15):
+            out[j] = out[j].replace('charPrIDRef="21"', 'charPrIDRef="9"')
+    warn = []
+    title_cell = re.search(r"<hp:p\b[^>]*>(?:(?!</hp:p>).)*「.*?</hp:p>", out[1], re.S).group(0)
+    if layout.para_height(title_cell, 49324 - 1020)[1] > 1:
+        warn.append("제목이 2줄")
+    for f, t in zip(out[4:], T[4:22]):  # 각 항목은 양식의 같은 문단보다 줄 수가 많으면 안 됨
+        if "<hp:tbl" not in f and layout.top_height(f, WIDTH)[1] > layout.top_height(t, WIDTH)[1]:
+            warn.append("줄 초과: " + "".join(re.findall(r"<hp:t>([^<]*)</hp:t>", f)).strip()[:24])
+    if page_h(out) > BODY_MAX:
+        warn.append(f"본문 높이 {page_h(out):.0f} > {BODY_MAX}")
+    out.append(T[22])
     for i, (k, a, (e, left)) in enumerate(zip(K, A, exp)):
-        if i:
-            out += [T[35], T[36]]
-        else:
-            out.append(T[23])
+        page = [T[22], T[23]] if i == 0 else [T[35], T[36]]
         d = a.get("details") or {}
         md = a.get("summary", "")
         inv = k["inventors"]
         a_d = ymd(k["appDate"])
         reg = f"{k['regNo']} ({ymd(k['regDate']).strftime('%Y. %m. %d.')} 등록)" if k["status"] == "등록" else "미등록(공개)"
-        out += [set_texts(T[24], [f"□ [붙임 {i + 1}] 특허 요약서 {NUM[i]}"]),
+        head = [set_texts(T[24], [f"□ [붙임 {i + 1}] 특허 요약서 {NUM[i]}"]),
                 set_texts(T[25], [None, k["title"]]), T[26],
                 set_texts(T[27], [None, None, None, f"{k['appNo']} ({a_d.strftime('%Y. %m. %d.')} 출원)",
                                   None, reg, None, f"{e.strftime('%Y.%m.%d')} 만료 (잔여 약 {left}년)",
@@ -154,14 +173,23 @@ def build(c):
                 set_texts(T[30], [None] * 5 + [f"{a.get('score', '-')}점", f"{d.get('technologyScore', '-')}점",
                                                f"{d.get('marketScore', '-')}점", f"{d.get('businessScore', '-')}점",
                                                f"TRL {d.get('trl', '-')}"]),
-                T[31],
-                ann_bullet("발명 요약", sentences(section(md, "발명요약"), 2)),
-                ann_bullet("농산업 활용", sentences(section(md, "농산업활용"), 3)),
-                ann_bullet("상용화 전망", sentences(section(md, "상용화전망"), 3))]
+                T[31]]
+        # AIS 요약 3항목: 양식 분량(2·3·3문장)에서 시작해 1페이지에 들어갈 때까지 긴 항목부터 한 문장씩 줄인다
+        secs = [section(md, "발명요약"), section(md, "농산업활용"), section(md, "상용화전망")]
+        labels, counts = ["발명 요약", "농산업 활용", "상용화 전망"], [2, 3, 3]
+        while True:
+            bullets = [ann_bullet(l, sentences(t, n)) for l, t, n in zip(labels, secs, counts)]
+            if page_h(page[1:] + head + bullets) <= ATT_MAX or max(counts) == 1:
+                break
+            j = max((j for j in range(3) if counts[j] > 1), key=lambda j: layout.top_height(bullets[j], WIDTH)[1])
+            counts[j] -= 1
+        if page_h(page[1:] + head + bullets) > ATT_MAX:
+            warn.append(f"붙임 {i + 1} 높이 초과")
+        out += (page[1:] if i == 0 else page) + head + bullets
     # 문단·표 id 재부여(머리말/꼬리말 id="0"은 유지)
     n = iter(range(1000000001, 1000099999))
     body = re.sub(r'(<hp:(?:p|tbl) id=")(\d+)(")', lambda m: m.group(0) if m.group(2) == "0" else f"{m.group(1)}{next(n)}{m.group(3)}", "".join(out))
-    return HEAD + body + TAIL, f"「{P['short']}」 기술이전 제안", body
+    return HEAD + body + TAIL, f"「{P['short']}」 기술이전 제안", body, warn
 
 
 def preview_text(body):
@@ -170,8 +198,10 @@ def preview_text(body):
 
 
 OUT.mkdir(exist_ok=True)
+for old in OUT.glob("*.hwpx"):  # 파일명이 바뀌어도 이전 산출물이 남지 않도록 비운다
+    old.unlink()
 for i, c in enumerate(companies, 1):
-    sec, title, body = build(c)
+    sec, title, body, warn = build(c)
     dst = OUT / f"{i:02d}_{c['code']}_{props[c['code']]['short'].replace(' ', '')}_기술이전제안.hwpx"
     with zipfile.ZipFile(dst, "w") as z:
         for info in tpl.infolist():
@@ -183,4 +213,4 @@ for i, c in enumerate(companies, 1):
             elif info.filename == "Preview/PrvText.txt":
                 data = preview_text(body).encode("utf-8")
             z.writestr(info.filename, data, zipfile.ZIP_STORED if info.filename == "mimetype" else zipfile.ZIP_DEFLATED)
-    print(dst.name)
+    print(dst.name, *(["⚠ " + "; ".join(warn)] if warn else []))
