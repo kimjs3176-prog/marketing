@@ -102,7 +102,7 @@
         <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-leaf-400 to-lime2-400 grid place-items-center text-leaf-950">
           <iconify-icon icon="solar:leaf-bold" class="text-lg"></iconify-icon>
         </span>
-        <span class="keep text-sm md:text-base">발효 바이오소재 특허 <span class="font-display text-lime2-400">3</span>선</span>
+        <span class="keep text-sm md:text-base">발효 바이오소재 특허 <span class="font-display text-lime2-400" data-count>3</span>선</span>
       </a>
       <div class="hidden md:flex items-center gap-6 text-sm text-leaf-100/80">
         <a href="#patents" class="hover:text-lime2-300 spring">특허 소개</a>
@@ -127,7 +127,7 @@
           </h1>
           <p class="reveal mt-6 text-base md:text-lg text-leaf-100/80 leading-relaxed keep max-w-xl" style="--i:2">
             오가피 열매 · 오디 · 식방풍 — 국산 농산 원료를 미생물 생물전환으로 고도화한
-            <b class="text-white">면역 · 항산화 · 장-뇌 건강</b> 기능성 소재 특허 3건을 소개합니다.
+            <b class="text-white">면역 · 항산화 · 장-뇌 건강</b> 기능성 소재 특허 <span data-count>3</span>건을 소개합니다.
             건강기능식품, 화장품, 사료·펫푸드까지 확장 가능한 원천기술을 만나보세요.
           </p>
           <div class="reveal mt-8 flex flex-wrap gap-3" style="--i:3">
@@ -148,17 +148,6 @@
               <p class="text-xs text-leaf-100/60">출처 · KIPRIS</p>
             </div>
             <ul id="heroList" class="mt-5 space-y-3"></ul>
-            <div class="mt-6 grid grid-cols-3 gap-3 text-center">
-              <div class="rounded-2xl bg-white/5 border border-white/10 py-3">
-                <p class="font-display text-2xl font-bold text-lime2-400">3</p><p class="text-[11px] text-leaf-100/70">특허</p>
-              </div>
-              <div class="rounded-2xl bg-white/5 border border-white/10 py-3">
-                <p class="font-display text-2xl font-bold text-lime2-400" id="avgScore">–</p><p class="text-[11px] text-leaf-100/70">평균 사업화 점수</p>
-              </div>
-              <div class="rounded-2xl bg-white/5 border border-white/10 py-3">
-                <p class="font-display text-2xl font-bold text-lime2-400">~2044</p><p class="text-[11px] text-leaf-100/70">최장 존속기간</p>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -196,13 +185,10 @@
         <p class="reveal text-xs font-mono tracking-widest text-lime2-300">02 · AT A GLANCE</p>
         <h2 class="reveal mt-3 text-3xl md:text-4xl font-bold keep" style="--i:1">한눈에 비교</h2>
         <div class="reveal mt-10 glass rounded-3xl overflow-x-auto" style="--i:2">
-          <table class="w-full min-w-[720px] text-sm">
+          <table class="w-full min-w-[760px] text-base">
             <thead class="text-left text-leaf-100/70">
-              <tr class="border-b border-white/10">
+              <tr id="compareHead" class="border-b border-white/10">
                 <th class="p-5 font-medium">구분</th>
-                <th class="p-5 font-medium" data-col="0"></th>
-                <th class="p-5 font-medium" data-col="1"></th>
-                <th class="p-5 font-medium" data-col="2"></th>
               </tr>
             </thead>
             <tbody id="compareBody" class="keep"></tbody>
@@ -247,7 +233,7 @@
   <footer class="py-12 border-t border-white/10">
     <div class="max-w-6xl mx-auto px-5 grid md:grid-cols-2 gap-6 items-center text-sm">
       <div>
-        <p class="font-bold">천연물 × 유산균 발효 바이오소재 특허 3선</p>
+        <p class="font-bold">천연물 × 유산균 발효 바이오소재 특허 <span data-count>3</span>선</p>
         <p class="text-xs text-leaf-100/50 mt-2 keep">특허 서지정보 출처: KIPRIS(한국특허정보원) · 기술분석: Agri IP Summary(AIS)</p>
       </div>
       <div class="md:text-right text-leaf-100/70 keep">
@@ -278,6 +264,7 @@
           'IκB-α 인산화·분해, p65 핵 내 이동, ERK MAPK 인산화를 유도해 선천면역 반응을 신속히 증폭',
         ],
         uses: ['면역 기능성 건강기능식품 원료', '개별인정형 기능성 원료 개발', '오가피 농가 연계 1차 가공(주정 추출) 소재'],
+        cmp: { raw: '오가피 열매', microbe: 'L. helveticus', func: '선천성 면역증진', market: '건강기능식품' },
         drawing: 'assets/patent-10-2839159.jpg',
         drawingCap: '오가피 열매 추출물(ASE) 및 균주별 발효물(LPF·STF·LHF)의 세포 생존율 — 전 농도에서 독성 없음',
       },
@@ -298,6 +285,7 @@
           '80~150 ㎍/ml 농도에서 발효 전 추출물 대비 향상된 항산화 효과 (청구항 3)',
         ],
         uses: ['안티에이징·피부노화 방지 기능성 화장품', '이너뷰티·항산화 건강기능식품', '오디 잉여 농산물의 고부가 가공'],
+        cmp: { raw: '오디(뽕나무 열매)', microbe: 'B. longum · E. thailandicus', func: '항산화', market: '화장품 · 이너뷰티' },
         drawing: 'assets/patent-10-2185438.jpg',
         drawingCap: '균주(L.P · L.H · B.L · S.th · T7) 및 농도별 발효 효과 비교 레이더 차트',
       },
@@ -318,6 +306,7 @@
           '미세아교세포에서 세포독성 없이 산화질소 생성을 억제 — 신경염증 완화로 기억력·인지기능 개선',
         ],
         uses: ['장건강·기억력 개선 건강기능식품', '항생제 대체 기능성 사료 첨가제', '노령 반려동물 인지·장 건강 펫푸드'],
+        cmp: { raw: '식방풍 지상부(줄기·잎)', microbe: 'L. reuteri · L. plantarum 등', func: '장건강 · 기억력 개선', market: '건기식 · 사료 · 펫푸드' },
         drawing: 'assets/patent-10-2024-0165540.jpg',
         drawingCap: '식방풍 추출물(PJE) 및 균주 배양물의 미세아교세포 NO 생성 억제 효과 (LPS 유도)',
       },
@@ -334,50 +323,52 @@
 
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
+    // 특허 건수 (시리즈 회차마다 PATENTS 배열만 바꾸면 자동 반영)
+    document.querySelectorAll('[data-count]').forEach(el => el.textContent = PATENTS.length);
+
     // 히어로 미니 리스트
     document.getElementById('heroList').innerHTML = PATENTS.map(p => `
-      <li><a href="#p-${p.id}" class="flex items-center gap-3 rounded-2xl bg-white/5 border border-white/10 p-3 hover:bg-white/10 hover:border-lime2-400/50 spring">
-        <span class="w-11 h-11 rounded-xl bg-gradient-to-br from-leaf-500/40 to-lime2-400/30 grid place-items-center shrink-0">
-          <iconify-icon icon="${p.icon}" class="text-2xl text-lime2-300"></iconify-icon></span>
+      <li><a href="#p-${p.id}" class="flex items-center gap-4 rounded-2xl bg-white/5 border border-white/10 p-4 hover:bg-white/10 hover:border-lime2-400/50 spring">
+        <span class="w-12 h-12 rounded-xl bg-gradient-to-br from-leaf-500/40 to-lime2-400/30 grid place-items-center shrink-0">
+          <iconify-icon icon="${p.icon}" class="text-[1.7rem] text-lime2-300"></iconify-icon></span>
         <span class="min-w-0 flex-1">
-          <span class="block text-sm font-semibold truncate">${esc(p.short)}</span>
-          <span class="block text-[11px] font-mono text-leaf-100/60">${p.status === '등록' ? '등록' : '출원'} ${p.id}</span>
+          <span class="block text-base md:text-lg font-semibold leading-snug keep">${esc(p.short)}</span>
+          <span class="block mt-0.5 text-sm font-mono text-leaf-100/60">${p.status === '등록' ? '등록' : '출원'} ${p.id}</span>
         </span>
-        <span class="text-xs font-display font-bold text-lime2-400">${p.score}</span>
+        <span class="text-xl font-display font-bold text-lime2-400">${p.score}</span>
       </a></li>`).join('');
-    document.getElementById('avgScore').textContent = Math.round(PATENTS.reduce((a, p) => a + p.score, 0) / PATENTS.length);
 
     // 특허 상세 카드
     document.getElementById('patentList').innerHTML = PATENTS.map((p, i) => `
       <article id="p-${p.id}" class="reveal glass rounded-3xl p-6 md:p-10 scroll-mt-24">
-        <div class="flex flex-wrap items-center gap-2 text-xs">
-          <span class="px-2.5 py-1 rounded-full bg-lime2-400 text-leaf-950 font-bold">${esc(p.badge)}</span>
-          <span class="px-2.5 py-1 rounded-full border ${p.status === '등록' ? 'border-leaf-300/50 text-leaf-200' : 'border-amber-300/50 text-amber-200'}">${p.status}</span>
+        <div class="flex flex-wrap items-center gap-2 text-sm">
+          <span class="px-3 py-1 rounded-full bg-lime2-400 text-leaf-950 font-bold">${esc(p.badge)}</span>
+          <span class="px-3 py-1 rounded-full border ${p.status === '등록' ? 'border-leaf-300/50 text-leaf-200' : 'border-amber-300/50 text-amber-200'}">${p.status}</span>
           <span class="font-mono text-leaf-100/60">${p.status === '등록' ? '등록번호' : '출원번호'} ${p.id}</span>
           <span class="ml-auto font-mono text-leaf-100/40">0${i + 1} / 0${PATENTS.length}</span>
         </div>
-        <h3 class="mt-4 text-2xl md:text-3xl font-bold leading-snug keep">${esc(p.title)}</h3>
-        <p class="mt-3 text-lime2-300 keep">${esc(p.tagline)}</p>
+        <h3 class="mt-4 text-[1.7rem] md:text-4xl font-bold leading-snug keep">${esc(p.title)}</h3>
+        <p class="mt-3 text-lg md:text-xl text-lime2-300 keep">${esc(p.tagline)}</p>
 
         <div class="mt-8 grid lg:grid-cols-[1.25fr_.75fr] gap-8">
           <div class="space-y-6">
             <div class="rounded-2xl bg-white/5 border border-white/10 p-5">
-              <p class="text-xs font-semibold text-leaf-100/60 flex items-center gap-1.5"><iconify-icon icon="solar:danger-triangle-bold-duotone" class="text-amber-300 text-base"></iconify-icon> 기존 한계</p>
-              <p class="mt-2 text-leaf-50/90 keep">${esc(p.problem)}</p>
+              <p class="text-sm md:text-base font-semibold text-leaf-100/70 flex items-center gap-1.5"><iconify-icon icon="solar:danger-triangle-bold-duotone" class="text-amber-300 text-xl"></iconify-icon> 기존 한계</p>
+              <p class="mt-2 text-base md:text-lg leading-relaxed text-leaf-50/90 keep">${esc(p.problem)}</p>
             </div>
             <div>
-              <p class="text-xs font-semibold text-leaf-100/60 flex items-center gap-1.5"><iconify-icon icon="solar:lightbulb-bolt-bold-duotone" class="text-lime2-300 text-base"></iconify-icon> 핵심 기술</p>
-              <ul class="mt-3 space-y-2.5">${p.solution.map(s => `
-                <li class="flex gap-3 keep"><iconify-icon icon="solar:check-circle-bold" class="text-leaf-300 text-lg shrink-0 mt-0.5"></iconify-icon><span class="text-leaf-50/90">${esc(s)}</span></li>`).join('')}
+              <p class="text-sm md:text-base font-semibold text-leaf-100/70 flex items-center gap-1.5"><iconify-icon icon="solar:lightbulb-bolt-bold-duotone" class="text-lime2-300 text-xl"></iconify-icon> 핵심 기술</p>
+              <ul class="mt-3 space-y-3">${p.solution.map(s => `
+                <li class="flex gap-3 keep"><iconify-icon icon="solar:check-circle-bold" class="text-leaf-300 text-xl shrink-0 mt-1"></iconify-icon><span class="text-base md:text-lg leading-relaxed text-leaf-50/90">${esc(s)}</span></li>`).join('')}
               </ul>
             </div>
             <div>
-              <p class="text-xs font-semibold text-leaf-100/60 flex items-center gap-1.5"><iconify-icon icon="solar:widget-5-bold-duotone" class="text-lime2-300 text-base"></iconify-icon> 활용 분야</p>
-              <div class="mt-3 flex flex-wrap gap-2">${p.uses.map(u => `<span class="px-3 py-1.5 rounded-xl bg-leaf-500/15 border border-leaf-300/25 text-sm text-leaf-100 keep">${esc(u)}</span>`).join('')}</div>
+              <p class="text-sm md:text-base font-semibold text-leaf-100/70 flex items-center gap-1.5"><iconify-icon icon="solar:widget-5-bold-duotone" class="text-lime2-300 text-xl"></iconify-icon> 활용 분야</p>
+              <div class="mt-3 flex flex-wrap gap-2">${p.uses.map(u => `<span class="px-3.5 py-2 rounded-xl bg-leaf-500/15 border border-leaf-300/25 text-base text-leaf-100 keep">${esc(u)}</span>`).join('')}</div>
             </div>
             <figure class="rounded-2xl bg-white/5 border border-white/10 p-3">
               <img src="${p.drawing}" alt="${esc(p.title)} 대표 도면" loading="lazy" class="drawing w-full h-auto max-h-80 object-contain p-2" />
-              <figcaption class="mt-2.5 px-1 text-xs text-leaf-100/60 keep">【대표 도면】 ${esc(p.drawingCap)}</figcaption>
+              <figcaption class="mt-2.5 px-1 text-sm text-leaf-100/70 keep">【대표 도면】 ${esc(p.drawingCap)}</figcaption>
             </figure>
           </div>
 
@@ -386,17 +377,17 @@
               <div class="flex items-center gap-5">
                 <div class="ring" style="--v:${p.score}"><div><p class="font-display text-3xl font-bold">${p.score}</p></div></div>
                 <div>
-                  <p class="text-xs text-leaf-100/60">AI 종합 사업화 점수</p>
-                  <p class="mt-1 font-semibold">상용화 잠재력 높음</p>
-                  <p class="mt-2 text-xs text-leaf-100/60">TRL <b class="text-lime2-300 font-display text-base">${p.trl}</b>/9 · ${esc(p.trlLabel)}</p>
+                  <p class="text-sm text-leaf-100/70">AI 종합 사업화 점수</p>
+                  <p class="mt-1 text-lg font-semibold">상용화 잠재력 높음</p>
+                  <p class="mt-2 text-sm text-leaf-100/70">TRL <b class="text-lime2-300 font-display text-lg">${p.trl}</b>/9 · ${esc(p.trlLabel)}</p>
                 </div>
               </div>
               <div class="mt-5 space-y-3">${Object.entries(p.sub).map(([k, v]) => `
-                <div><div class="flex justify-between text-xs"><span class="text-leaf-100/70">${k}</span><span class="font-display font-semibold">${v}</span></div>
+                <div><div class="flex justify-between text-sm"><span class="text-leaf-100/70">${k}</span><span class="font-display font-semibold">${v}</span></div>
                 <div class="bar mt-1.5"><span style="--w:${v}%"></span></div></div>`).join('')}
               </div>
             </div>
-            <dl class="rounded-2xl bg-white/5 border border-white/10 p-5 text-sm space-y-2.5">
+            <dl class="rounded-2xl bg-white/5 border border-white/10 p-5 text-base space-y-3">
               <div class="flex justify-between gap-4"><dt class="text-leaf-100/60 shrink-0">출원번호</dt><dd class="font-mono text-right">${p.appNo}</dd></div>
               <div class="flex justify-between gap-4"><dt class="text-leaf-100/60 shrink-0">출원일</dt><dd class="text-right">${p.appDate}</dd></div>
               ${p.regDate ? `<div class="flex justify-between gap-4"><dt class="text-leaf-100/60 shrink-0">등록일</dt><dd class="text-right">${p.regDate}</dd></div>` : ''}
@@ -404,13 +395,13 @@
               <div class="flex justify-between gap-4"><dt class="text-leaf-100/60 shrink-0">존속기간 만료</dt><dd class="text-right">${p.expire}</dd></div>
               <div class="flex justify-between gap-4"><dt class="text-leaf-100/60 shrink-0">권리자</dt><dd class="text-right keep">대한민국(농촌진흥청장)</dd></div>
               <div class="flex justify-between gap-4"><dt class="text-leaf-100/60 shrink-0">발명자</dt><dd class="text-right keep">${esc(p.inventors)}</dd></div>
-              <div class="pt-2 border-t border-white/10"><dt class="text-leaf-100/60">IPC</dt><dd class="mt-1 font-mono text-xs text-leaf-100/80 leading-relaxed">${esc(p.ipc)}</dd></div>
+              <div class="pt-2 border-t border-white/10"><dt class="text-leaf-100/60">IPC</dt><dd class="mt-1 font-mono text-sm text-leaf-100/80 leading-relaxed">${esc(p.ipc)}</dd></div>
             </dl>
-            <div class="flex flex-wrap gap-1.5">${p.keywords.map(k => `<span class="text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-leaf-100/80">#${esc(k)}</span>`).join('')}</div>
+            <div class="flex flex-wrap gap-1.5">${p.keywords.map(k => `<span class="text-sm px-3 py-1 rounded-full bg-white/5 border border-white/10 text-leaf-100/80">#${esc(k)}</span>`).join('')}</div>
             <div class="grid grid-cols-2 gap-2">
-              <a href="${REPORT(p.id)}" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl glass text-sm font-semibold hover:border-lime2-400/60 spring">
+              <a href="${REPORT(p.id)}" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl glass text-base font-semibold hover:border-lime2-400/60 spring">
                 <iconify-icon icon="solar:document-text-bold-duotone" class="text-lg text-lime2-300"></iconify-icon> AI 분석 리포트</a>
-              <a href="#contact" class="inline-flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl bg-lime2-400 text-leaf-950 text-sm font-bold hover:bg-lime2-300 spring">
+              <a href="#contact" class="inline-flex items-center justify-center gap-1.5 px-3 py-3 rounded-xl bg-lime2-400 text-leaf-950 text-base font-bold hover:bg-lime2-300 spring">
                 <iconify-icon icon="solar:hand-shake-bold" class="text-lg"></iconify-icon> 이전 문의</a>
             </div>
           </aside>
@@ -418,17 +409,15 @@
       </article>`).join('');
 
     // 비교 표
-    document.querySelectorAll('th[data-col]').forEach(th => {
-      const p = PATENTS[+th.dataset.col];
-      th.innerHTML = `<span class="text-lime2-300 font-semibold">${esc(p.badge)}</span><br><span class="text-xs font-mono">${p.id}</span>`;
-    });
+    document.getElementById('compareHead').insertAdjacentHTML('beforeend', PATENTS.map(p =>
+      `<th class="p-5 font-medium"><span class="text-lime2-300 font-semibold">${esc(p.badge)}</span><br><span class="text-sm font-mono">${p.id}</span></th>`).join(''));
     const ROWS = [
-      ['원료', ['오가피 열매', '오디(뽕나무 열매)', '식방풍 지상부(줄기·잎)']],
-      ['핵심 미생물', ['L. helveticus', 'B. longum · E. thailandicus', 'L. reuteri · L. plantarum 등']],
-      ['기능', ['선천성 면역증진', '항산화', '장건강 · 기억력 개선']],
+      ['원료', PATENTS.map(p => esc(p.cmp.raw))],
+      ['핵심 미생물', PATENTS.map(p => esc(p.cmp.microbe))],
+      ['기능', PATENTS.map(p => esc(p.cmp.func))],
       ['권리 상태', PATENTS.map(p => p.status + (p.regDate ? ` (${p.regDate})` : ` (공개 ${p.openDate})`))],
-      ['사업화 점수 / TRL', PATENTS.map(p => `<b class="font-display text-lime2-400 text-base">${p.score}</b> · TRL ${p.trl}`)],
-      ['주요 시장', ['건강기능식품', '화장품 · 이너뷰티', '건기식 · 사료 · 펫푸드']],
+      ['사업화 점수 / TRL', PATENTS.map(p => `<b class="font-display text-lime2-400 text-lg">${p.score}</b> · TRL ${p.trl}`)],
+      ['주요 시장', PATENTS.map(p => esc(p.cmp.market))],
     ];
     document.getElementById('compareBody').innerHTML = ROWS.map(([k, vals]) => `
       <tr class="border-b border-white/5 last:border-0">
