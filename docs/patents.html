@@ -75,19 +75,9 @@
       transition-delay: calc(var(--i, 0) * 90ms); }
     .reveal.in { opacity: 1; transform: none; }
 
-    /* 점수 링 */
-    .ring { --v: 0; width: 112px; height: 112px; border-radius: 9999px;
-      background: conic-gradient(#bdf05a calc(var(--v) * 1%), rgba(255,255,255,.1) 0); display: grid; place-items: center; }
-    .ring > div { width: 88px; height: 88px; border-radius: 9999px; background: rgba(4,23,15,.85); display: grid; place-items: center; }
-    .bar { height: 6px; border-radius: 9999px; background: rgba(255,255,255,.1); overflow: hidden; }
-    .bar > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #3fd67f, #bdf05a);
-      width: 0; transition: width 1.2s cubic-bezier(.2,.8,.2,1); }
-    .in .bar > span { width: var(--w); }
-
     .drawing { background: #fff; border-radius: 14px; }
     @media (prefers-reduced-motion: reduce) {
       .blob { animation: none; } .reveal { opacity: 1; transform: none; transition: none; }
-      .bar > span { transition: none; width: var(--w); }
     }
   </style>
 </head>
@@ -194,7 +184,6 @@
             <tbody id="compareBody" class="keep"></tbody>
           </table>
         </div>
-        <p class="mt-4 text-xs text-leaf-100/50 keep">※ 사업화 점수·TRL은 특허명세서 기반 AI 분석(Agri IP Summary) 결과로, 실제 연구·개발 단계와 다를 수 있습니다.</p>
       </div>
     </section>
 
@@ -255,7 +244,6 @@
         inventors: '김관우, 이영섭, 이대영, 김금숙 외 1명',
         ipc: 'A23L 33/105 · A23L 33/135 · C12N 1/20 · A61K 36/254 · A61P 37/04',
         keywords: ['발효', '건강기능식품', '원료 소재', '미생물 활용'],
-        score: 83, sub: { 기술성: 74, 시장성: 90, 사업성: 86 }, trl: 4, trlLabel: '실험실 검증',
         tagline: '오가피 열매 30% 주정 추출물 × L. helveticus 발효로 선천면역을 깨우다',
         problem: '천연물 추출물 자체는 체내 흡수율이 낮고, 면역 활성을 표준화해 유도하기 어려웠습니다.',
         solution: [
@@ -276,7 +264,6 @@
         inventors: '이영섭, 이대영, 김금숙, 김부민 외 6명',
         ipc: 'A61K 8/9789 · A61Q 19/08 · A23L 33/105 · A23L 29/00',
         keywords: ['항산화', '화장품', '식품산업', '미생물 활용'],
-        score: 82, sub: { 기술성: 77, 시장성: 90, 사업성: 79 }, trl: 4, trlLabel: '실험실 검증',
         tagline: '오디 물 추출물을 기탁 균주로 발효해 항산화력을 끌어올린 클린 소재',
         problem: '단순 열수 추출 오디 원료는 유효성분의 생체 이용률이 낮고, 가공 중 항산화 활성이 쉽게 떨어졌습니다.',
         solution: [
@@ -297,7 +284,6 @@
         inventors: '김관우, 이영섭, 이윤지',
         ipc: 'A61K 36/23 · A61K 35/744 · A61K 35/747 · A61P 25/28 · A61P 1/00 · A23L 33/105 · A23K 10/30',
         keywords: ['장건강', '기억력', '신바이오틱스', '사료·펫푸드'],
-        score: 90, sub: { 기술성: 95, 시장성: 90, 사업성: 84 }, trl: 5, trlLabel: '시제품 성능 평가',
         tagline: '버려지던 식방풍 줄기·잎으로 유익균을 키우고 뇌 염증을 잡는 장-뇌 축 소재',
         problem: '식방풍은 뿌리 위주로 소비되어 지상부 부산물 활용도가 낮았고, 단일 생균제는 장내 정착 효율이 떨어졌습니다.',
         solution: [
@@ -335,7 +321,6 @@
           <span class="block text-base md:text-lg font-semibold leading-snug keep">${esc(p.short)}</span>
           <span class="block mt-0.5 text-sm font-mono text-leaf-100/60">${p.status === '등록' ? '등록' : '출원'} ${p.id}</span>
         </span>
-        <span class="text-xl font-display font-bold text-lime2-400">${p.score}</span>
       </a></li>`).join('');
 
     // 특허 상세 카드
@@ -373,20 +358,6 @@
           </div>
 
           <aside class="space-y-5">
-            <div class="rounded-2xl bg-white/5 border border-white/10 p-5">
-              <div class="flex items-center gap-5">
-                <div class="ring" style="--v:${p.score}"><div><p class="font-display text-3xl font-bold">${p.score}</p></div></div>
-                <div>
-                  <p class="text-sm text-leaf-100/70">AI 종합 사업화 점수</p>
-                  <p class="mt-1 text-lg font-semibold">상용화 잠재력 높음</p>
-                  <p class="mt-2 text-sm text-leaf-100/70">TRL <b class="text-lime2-300 font-display text-lg">${p.trl}</b>/9 · ${esc(p.trlLabel)}</p>
-                </div>
-              </div>
-              <div class="mt-5 space-y-3">${Object.entries(p.sub).map(([k, v]) => `
-                <div><div class="flex justify-between text-sm"><span class="text-leaf-100/70">${k}</span><span class="font-display font-semibold">${v}</span></div>
-                <div class="bar mt-1.5"><span style="--w:${v}%"></span></div></div>`).join('')}
-              </div>
-            </div>
             <dl class="rounded-2xl bg-white/5 border border-white/10 p-5 text-base space-y-3">
               <div class="flex justify-between gap-4"><dt class="text-leaf-100/60 shrink-0">출원번호</dt><dd class="font-mono text-right">${p.appNo}</dd></div>
               <div class="flex justify-between gap-4"><dt class="text-leaf-100/60 shrink-0">출원일</dt><dd class="text-right">${p.appDate}</dd></div>
@@ -416,7 +387,6 @@
       ['핵심 미생물', PATENTS.map(p => esc(p.cmp.microbe))],
       ['기능', PATENTS.map(p => esc(p.cmp.func))],
       ['권리 상태', PATENTS.map(p => p.status + (p.regDate ? ` (${p.regDate})` : ` (공개 ${p.openDate})`))],
-      ['사업화 점수 / TRL', PATENTS.map(p => `<b class="font-display text-lime2-400 text-lg">${p.score}</b> · TRL ${p.trl}`)],
       ['주요 시장', PATENTS.map(p => esc(p.cmp.market))],
     ];
     document.getElementById('compareBody').innerHTML = ROWS.map(([k, vals]) => `
