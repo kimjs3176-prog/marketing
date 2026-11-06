@@ -38,6 +38,23 @@
 - 대표 도면 : `assets/patent-<번호>.jpg`
 - 특허를 추가·수정하려면 하단 `<script>`의 `PATENTS` 배열과 비교 표의 `ROWS`를 함께 수정하세요.
 
+## 외부 리소스 무결성(SRI)
+
+모든 페이지는 외부 스크립트·스타일이 변조되면 브라우저가 실행을 차단하도록 구성되어 있습니다.
+
+| 리소스 | 방식 |
+|---|---|
+| Tailwind CSS 3.4.17 (Play CDN) | `cdn.tailwindcss.com`이 CORS를 지원하지 않아 SRI를 걸 수 없으므로 `assets/vendor/tailwindcss-3.4.17.js`로 저장소에 포함(동일 출처). 원본 sha384 `igm5BeiBt36UU4gqwWS7imYmelpTsZlQ45FZf+XBn9MuJbn4nQr7yx1yFydocC/K` |
+| iconify-icon 2.3.0 | `integrity` + `crossorigin="anonymous"` |
+| Pretendard 1.3.9 (jsDelivr npm) | 버전 고정 + `integrity` + `crossorigin="anonymous"` |
+| Google Fonts CSS | 브라우저마다 응답이 달라 SRI 불가(스타일시트만, 스크립트 아님) |
+
+버전을 올릴 때는 새 파일의 해시를 다시 계산해 `integrity` 값을 교체하세요.
+
+```bash
+curl -s <URL> | openssl dgst -sha384 -binary | base64   # 결과 앞에 sha384- 를 붙임
+```
+
 ## GitHub Pages 배포
 
 1. GitHub 저장소 → **Settings → Pages**
