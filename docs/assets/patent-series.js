@@ -8,8 +8,9 @@
 
 // 시리즈 목록 (2주 간격 발행)
 const SERIES = [
-  { no: 1, href: 'patents.html',   date: '2026.10.26', title: '천연물 × 유산균 발효 바이오소재', topics: '면역 · 항산화 · 장-뇌 건강' },
-  { no: 2, href: 'patents-2.html', date: '2026.11.23', title: '기후변화 대응 한우 사료 첨가제', topics: '메탄 저감 · 고온 스트레스 저감' },
+  // institute: assets/patent-theme.js 의 PATENT_THEMES 키(과학원별 테마 컬러)
+  { no: 1, href: 'patents.html',   date: '2026.10.26', institute: 'horti',  title: '천연물 × 유산균 발효 바이오소재', topics: '면역 · 항산화 · 장-뇌 건강' },
+  { no: 2, href: 'patents-2.html', date: '2026.11.23', institute: 'animal', title: '기후변화 대응 한우 사료 첨가제', topics: '메탄 저감 · 고온 스트레스 저감' },
 ];
 
 const REPORT = no => 'https://atipsum.lovable.app/?patent=' + no;
@@ -30,6 +31,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 // 특허 건수 · 호수
 document.querySelectorAll('[data-count]').forEach(el => el.textContent = PATENTS.length);
 document.querySelectorAll('[data-issue]').forEach(el => el.textContent = 'No.' + pad(ISSUE));
+document.querySelectorAll('[data-institute-name]').forEach(el => el.textContent = window.PATENT_THEME.name);
 
 // 히어로 미니 리스트
 document.getElementById('heroList').innerHTML = PATENTS.map(p => `
@@ -53,6 +55,13 @@ document.getElementById('patentList').innerHTML = PATENTS.map((p, i) => `
     </div>
     <h3 class="mt-4 text-[1.7rem] md:text-4xl font-bold leading-snug keep">${esc(p.title)}</h3>
     <p class="mt-3 text-lg md:text-xl text-lime2-300 keep">${esc(p.tagline)}</p>
+    ${p.video ? `
+    <figure class="mt-8 rounded-2xl overflow-hidden border border-white/10 bg-black">
+      <video controls playsinline preload="none" poster="${p.video}.jpg" class="w-full aspect-video" aria-label="${esc(p.title)} 기술소개영상">
+        <source src="${p.video}.mp4" type="video/mp4" />
+      </video>
+      <figcaption class="px-4 py-3 bg-white/5 text-sm text-leaf-100/70 flex items-center gap-1.5"><iconify-icon icon="solar:videocamera-record-bold-duotone" class="text-lime2-300 text-lg"></iconify-icon> 기술소개영상 · 나레이션·자막 포함</figcaption>
+    </figure>` : ''}
 
     <div class="mt-8 grid lg:grid-cols-[1.25fr_.75fr] gap-8">
       <div class="space-y-6">
@@ -134,6 +143,7 @@ document.getElementById('steps').innerHTML = STEPS.map(([icon, t, d], i) => `
 const seriesEl = document.getElementById('seriesList');
 if (seriesEl) seriesEl.innerHTML = SERIES.map(s => {
   const cur = s.no === ISSUE;
+  const t = PATENT_THEMES[s.institute] || PATENT_THEMES.default;
   return `
   <a href="${cur ? '#top' : s.href}" ${cur ? 'aria-current="page"' : ''} class="glass ${cur ? 'border-lime2-400/60' : 'glass-hover'} spring rounded-2xl p-5 flex flex-col gap-2">
     <span class="flex items-center justify-between text-sm">
@@ -142,6 +152,9 @@ if (seriesEl) seriesEl.innerHTML = SERIES.map(s => {
     </span>
     <span class="text-lg font-semibold leading-snug keep">${esc(s.title)}</span>
     <span class="text-sm text-leaf-100/60 keep">${esc(s.topics)}</span>
+    <span class="mt-1 inline-flex items-center gap-2 text-xs text-leaf-100/70">
+      <span class="w-3 h-3 rounded-full ring-1 ring-white/30" style="background:linear-gradient(135deg, ${t.leaf[500]}, ${t.lime2[400]})"></span>${esc(t.name)}
+    </span>
   </a>`;
 }).join('');
 
