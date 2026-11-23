@@ -45,6 +45,11 @@
   새 과학원은 `PATENT_THEMES`에 팔레트를 추가합니다. `SERIES`의 `institute`는 시리즈 카드의 색 점에 쓰입니다.
 - 서지정보·청구항·대표 도면은 KIPRIS Plus, 리포트 링크는 Agri IP Summary(atipsum)입니다.
 - 대표 도면 : `assets/patent-<번호>.jpg`
+- **기술소개영상** : `assets/video/<출원번호>.mp4`(+ 포스터 `.jpg`). 특허 데이터의 `video: 'assets/video/<출원번호>'`로 카드 상단에 표시됩니다.
+  `patent-tech-video` 스킬(템플릿 S, 나레이션·자막 포함)로 만든 영상을 웹용으로 압축해 넣습니다.
+  ```bash
+  ffmpeg -i <원본>.mp4 -c:v libx264 -preset slow -crf 27 -pix_fmt yuv420p -c:a aac -b:a 96k -movflags +faststart docs/assets/video/<출원번호>.mp4
+  ```
 
 **새 호 발행 순서**
 
