@@ -39,7 +39,10 @@
 | No.01 | `patents.html` | 천연물 × 유산균 발효 바이오소재 | 10-2839159 · 10-2185438 · 10-2024-0165540 |
 | No.02 | `patents-2.html` | 기후변화 대응 한우 사료 첨가제 | 10-3013564 · 10-3013445 |
 
-- 그린 · 글래스모피즘 테마. 화면 그리기는 공통 파일 `assets/patent-series.js`가 맡고, 각 호 페이지에는 문구와 `ISSUE`·`PATENTS` 데이터만 있습니다.
+- 글래스모피즘 테마. 화면 그리기는 공통 파일 `assets/patent-series.js`가 맡고, 각 호 페이지에는 문구와 `ISSUE`·`PATENTS` 데이터만 있습니다.
+- **과학원별 테마 컬러** (`assets/patent-theme.js`): `<html data-institute="…">`로 지정하면 그 과학원 파트너링 행사 페이지와 같은 팔레트가 적용됩니다.
+  `horti` 국립원예특작과학원(퍼플·오키드, vol.04) · `animal` 국립축산과학원(올리브·골드, vol.03) · `agri` 국립농업과학원(틸·골드, vol.02) · 지정 없음 = 기본 그린.
+  새 과학원은 `PATENT_THEMES`에 팔레트를 추가합니다. `SERIES`의 `institute`는 시리즈 카드의 색 점에 쓰입니다.
 - 서지정보·청구항·대표 도면은 KIPRIS Plus, 리포트 링크는 Agri IP Summary(atipsum)입니다.
 - 대표 도면 : `assets/patent-<번호>.jpg`
 
@@ -51,7 +54,7 @@
    ```
 2. 최신 호 파일을 복사해 `patents-<N>.html` 생성 → `<title>`·메타·히어로 문구·하단 문구 수정
 3. 같은 파일의 `const ISSUE = N;`과 `PATENTS` 배열을 새 특허로 교체 (비교 표 항목은 `cmp`의 키 순서대로 표시, 대표 도면이 없으면 `drawing` 대신 `facts`에 청구항 핵심 수치 3개)
-4. `assets/patent-series.js`의 `SERIES`에 한 줄 추가 → 모든 호의 '시리즈' 목록에 자동 반영
+4. `<html data-institute>`에 과학원 키 지정, `assets/patent-series.js`의 `SERIES`에 한 줄 추가(`institute` 포함) → 모든 호의 '시리즈' 목록에 자동 반영
 5. `index.html`의 '특허 시리즈' 링크 3곳(메뉴·배너·푸터)을 새 호로 변경
 
 ## 외부 리소스 무결성(SRI)

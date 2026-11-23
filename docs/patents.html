@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-institute="horti">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,42 +16,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
   <script src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js" integrity="sha384-63H0EhkXL6M4HAjkA3bbnT+mkm0SbHKtxxj4Iv1hXtM6FDH+c6XqvuXgDKBJdJNG" crossorigin="anonymous"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Pretendard', 'system-ui', 'sans-serif'],
-            display: ['"Space Grotesk"', 'Pretendard', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            leaf: {
-              50: '#effdf4', 100: '#d8fbe5', 200: '#b3f5cd', 300: '#79eaa9', 400: '#3fd67f',
-              500: '#19bb61', 600: '#0e984d', 700: '#0f773f', 800: '#115e35', 900: '#0b3d23',
-              950: '#04170f'
-            },
-            lime2: { 300: '#d4f78a', 400: '#bdf05a', 500: '#a3e033' }
-          }
-        }
-      }
-    }
-  </script>
+  <script src="assets/patent-theme.js"></script>
   <style>
     html { scroll-behavior: smooth; }
-    body { font-family: 'Pretendard', system-ui, sans-serif; background: #04170f; color: #eafff2; }
+    body { font-family: 'Pretendard', system-ui, sans-serif; background: rgb(var(--leaf-950)); color: rgb(var(--leaf-50)); }
     .keep { word-break: keep-all; }
     .font-display { font-family: 'Space Grotesk', 'Pretendard', sans-serif; }
     .spring { transition: all .45s cubic-bezier(.34,1.56,.64,1); }
 
     /* ===== 배경: 번지는 그린 오로라 ===== */
     .aurora { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
-      background: radial-gradient(1200px 700px at 50% -10%, #0b3d23 0%, #04170f 60%); }
+      background: radial-gradient(1200px 700px at 50% -10%, rgb(var(--leaf-900)) 0%, rgb(var(--leaf-950)) 60%); }
     .blob { position: absolute; border-radius: 9999px; filter: blur(90px); opacity: .55;
       animation: drift 22s ease-in-out infinite alternate; }
-    .blob.b1 { width: 520px; height: 520px; background: #19bb61; top: -120px; left: -120px; }
-    .blob.b2 { width: 460px; height: 460px; background: #a3e033; top: 30%; right: -160px; opacity: .32; animation-delay: -6s; }
-    .blob.b3 { width: 600px; height: 600px; background: #0e984d; bottom: -220px; left: 20%; opacity: .4; animation-delay: -12s; }
+    .blob.b1 { width: 520px; height: 520px; background: rgb(var(--leaf-500)); top: -120px; left: -120px; }
+    .blob.b2 { width: 460px; height: 460px; background: rgb(var(--lime2-500)); top: 30%; right: -160px; opacity: .32; animation-delay: -6s; }
+    .blob.b3 { width: 600px; height: 600px; background: rgb(var(--leaf-600)); bottom: -220px; left: 20%; opacity: .4; animation-delay: -12s; }
     @keyframes drift { from { transform: translate3d(0,0,0) scale(1) } to { transform: translate3d(60px,40px,0) scale(1.12) } }
     .grain { position: absolute; inset: 0; opacity: .06;
       background-image: radial-gradient(rgba(255,255,255,.6) 1px, transparent 1px); background-size: 3px 3px; }
@@ -62,12 +42,12 @@
       -webkit-backdrop-filter: blur(18px) saturate(140%);
       box-shadow: 0 10px 40px -10px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.18); }
     .glass-strong { background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.06)); }
-    .glass-hover:hover { transform: translateY(-6px); border-color: rgba(189,240,90,.5);
-      box-shadow: 0 24px 60px -16px rgba(25,187,97,.45), inset 0 1px 0 rgba(255,255,255,.25); }
+    .glass-hover:hover { transform: translateY(-6px); border-color: rgb(var(--lime2-400) / .5);
+      box-shadow: 0 24px 60px -16px rgb(var(--leaf-500) / .45), inset 0 1px 0 rgba(255,255,255,.25); }
 
     .scroll-prog { position: fixed; top: 0; left: 0; height: 3px; width: 100%; z-index: 70;
       transform-origin: 0 50%; transform: scaleX(0);
-      background: linear-gradient(90deg, #3fd67f, #bdf05a);
+      background: linear-gradient(90deg, rgb(var(--leaf-400)), rgb(var(--lime2-400)));
       animation: scrollGrow auto linear; animation-timeline: scroll(root); }
     @keyframes scrollGrow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
 
@@ -112,7 +92,7 @@
       <div class="max-w-6xl mx-auto grid lg:grid-cols-[1.15fr_.85fr] gap-12 items-center">
         <div>
           <p class="reveal inline-flex items-center gap-2 text-xs md:text-sm px-3 py-1.5 rounded-full glass text-lime2-300">
-            <iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon> 농촌진흥청 국유특허 · 기술이전 대상
+            <iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon> <span><span data-institute-name></span> · 농촌진흥청 국유특허 · 기술이전 대상</span>
           </p>
           <h1 class="reveal mt-6 text-4xl md:text-6xl font-extrabold leading-[1.15] keep" style="--i:1">
             천연물에 <span class="bg-gradient-to-r from-leaf-300 to-lime2-400 bg-clip-text text-transparent">유산균 발효</span>를 더하다
@@ -123,7 +103,7 @@
             건강기능식품, 화장품, 사료·펫푸드까지 확장 가능한 원천기술을 만나보세요.
           </p>
           <div class="reveal mt-8 flex flex-wrap gap-3" style="--i:3">
-            <a href="#patents" class="group inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-leaf-400 to-lime2-400 text-leaf-950 font-bold hover:shadow-[0_12px_40px_-8px_rgba(189,240,90,.6)] spring">
+            <a href="#patents" class="group inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-leaf-400 to-lime2-400 text-leaf-950 font-bold hover:shadow-[0_12px_40px_-8px_rgb(var(--lime2-400)/.6)] spring">
               특허 살펴보기 <iconify-icon icon="solar:arrow-down-linear" class="text-xl spring group-hover:translate-y-0.5"></iconify-icon>
             </a>
             <a href="#contact" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl glass font-semibold hover:border-lime2-400/60 spring">
@@ -219,7 +199,7 @@
         <p class="relative mt-4 text-leaf-100/80 keep">특허 상세 자료, 실시 조건, 연구자 미팅이 필요하시면 언제든 연락 주세요.<br class="hidden md:block" />한국농업기술진흥원 기술거래이전팀이 기업과 연구자를 연결해 드립니다.</p>
         <div class="relative mt-8 flex flex-col sm:flex-row gap-3 justify-center">
           <a href="mailto:kimjs1408@koat.or.kr?subject=%5B%EA%B8%B0%EC%88%A0%EC%9D%B4%EC%A0%84%20%EB%AC%B8%EC%9D%98%5D%20%EB%B0%9C%ED%9A%A8%20%EB%B0%94%EC%9D%B4%EC%98%A4%EC%86%8C%EC%9E%AC%20%ED%8A%B9%ED%97%88"
-             class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-gradient-to-r from-leaf-400 to-lime2-400 text-leaf-950 font-bold spring hover:shadow-[0_12px_40px_-8px_rgba(189,240,90,.6)]">
+             class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-gradient-to-r from-leaf-400 to-lime2-400 text-leaf-950 font-bold spring hover:shadow-[0_12px_40px_-8px_rgb(var(--lime2-400)/.6)]">
             <iconify-icon icon="solar:letter-bold" class="text-xl"></iconify-icon> kimjs1408@koat.or.kr
           </a>
           <a href="tel:063-919-1325" class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl glass font-semibold spring hover:border-lime2-400/60">
