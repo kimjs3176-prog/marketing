@@ -32,11 +32,27 @@
 - `assets/volN-poster-ambient.jpg` 는 히어로 배경에 번지는 색감용 저해상도 블러 이미지입니다.
 - 포스터를 교체할 때는 같은 파일명으로 덮어쓰고, 해상도가 바뀌면 `<img>`의 `width`/`height` 값도 함께 수정하세요.
 
-### 특허 홍보 페이지 (patents.html)
+### 국유특허 기술이전 시리즈 (patents*.html, 2주 간격 발행)
 
-- 그린 · 글래스모피즘 테마의 단독 페이지입니다. 서지정보는 KIPRIS, 사업화 점수·TRL은 Agri IP Summary(atipsum) AI 분석 결과를 옮겨 적었습니다.
+| 호 | 파일 | 테마 | 특허 |
+|---|---|---|---|
+| No.01 | `patents.html` | 천연물 × 유산균 발효 바이오소재 | 10-2839159 · 10-2185438 · 10-2024-0165540 |
+| No.02 | `patents-2.html` | 기후변화 대응 한우 사료 첨가제 | 10-3013564 · 10-3013445 |
+
+- 그린 · 글래스모피즘 테마. 화면 그리기는 공통 파일 `assets/patent-series.js`가 맡고, 각 호 페이지에는 문구와 `ISSUE`·`PATENTS` 데이터만 있습니다.
+- 서지정보·청구항·대표 도면은 KIPRIS Plus, 리포트 링크는 Agri IP Summary(atipsum)입니다.
 - 대표 도면 : `assets/patent-<번호>.jpg`
-- 특허를 추가·수정하려면 하단 `<script>`의 `PATENTS` 배열과 비교 표의 `ROWS`를 함께 수정하세요.
+
+**새 호 발행 순서**
+
+1. KIPRIS 데이터·도면 받기 (환경변수 `KIPRIS_API_KEY` 필요)
+   ```bash
+   python3 scripts/kipris_fetch.py <출원번호 또는 등록번호> ... --drawings docs/assets > /tmp/issue.json
+   ```
+2. 최신 호 파일을 복사해 `patents-<N>.html` 생성 → `<title>`·메타·히어로 문구·하단 문구 수정
+3. 같은 파일의 `const ISSUE = N;`과 `PATENTS` 배열을 새 특허로 교체 (비교 표 항목은 `cmp`의 키 순서대로 표시, 대표 도면이 없으면 `drawing` 대신 `facts`에 청구항 핵심 수치 3개)
+4. `assets/patent-series.js`의 `SERIES`에 한 줄 추가 → 모든 호의 '시리즈' 목록에 자동 반영
+5. `index.html`의 '특허 시리즈' 링크 3곳(메뉴·배너·푸터)을 새 호로 변경
 
 ## 외부 리소스 무결성(SRI)
 

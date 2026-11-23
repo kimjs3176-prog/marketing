@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>기후변화 대응 한우 사료 첨가제 특허 2선 — 국유특허 기술이전 시리즈 No.02</title>
+  <meta name="description" content="티아민 이인산 반추동물 메탄 저감, 비육후기 거세한우 고온 스트레스 저감 — 축산 사료 첨가제 국유특허 2건의 기술이전을 안내합니다. 문의 한국농업기술진흥원(KOAT)." />
+  <meta property="og:title" content="기후변화 대응 한우 사료 첨가제 특허 2선 — 시리즈 No.02" />
+  <meta property="og:description" content="메탄 저감 · 폭염 스트레스 저감 — 농촌진흥청 국유특허 기술이전 안내" />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#04170f" />
+  <script src="assets/vendor/tailwindcss-3.4.17.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css" integrity="sha384-1WPwPzrT39Q3uXVY1qOrNSiFcW7oxY0Xf5CZYw4D3j1EuApQlY8DzzfQw0tySMyG" crossorigin="anonymous" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <script src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js" integrity="sha384-63H0EhkXL6M4HAjkA3bbnT+mkm0SbHKtxxj4Iv1hXtM6FDH+c6XqvuXgDKBJdJNG" crossorigin="anonymous"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', 'system-ui', 'sans-serif'],
+            display: ['"Space Grotesk"', 'Pretendard', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            leaf: {
+              50: '#effdf4', 100: '#d8fbe5', 200: '#b3f5cd', 300: '#79eaa9', 400: '#3fd67f',
+              500: '#19bb61', 600: '#0e984d', 700: '#0f773f', 800: '#115e35', 900: '#0b3d23',
+              950: '#04170f'
+            },
+            lime2: { 300: '#d4f78a', 400: '#bdf05a', 500: '#a3e033' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Pretendard', system-ui, sans-serif; background: #04170f; color: #eafff2; }
+    .keep { word-break: keep-all; }
+    .font-display { font-family: 'Space Grotesk', 'Pretendard', sans-serif; }
+    .spring { transition: all .45s cubic-bezier(.34,1.56,.64,1); }
+
+    /* ===== 배경: 번지는 그린 오로라 ===== */
+    .aurora { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
+      background: radial-gradient(1200px 700px at 50% -10%, #0b3d23 0%, #04170f 60%); }
+    .blob { position: absolute; border-radius: 9999px; filter: blur(90px); opacity: .55;
+      animation: drift 22s ease-in-out infinite alternate; }
+    .blob.b1 { width: 520px; height: 520px; background: #19bb61; top: -120px; left: -120px; }
+    .blob.b2 { width: 460px; height: 460px; background: #a3e033; top: 30%; right: -160px; opacity: .32; animation-delay: -6s; }
+    .blob.b3 { width: 600px; height: 600px; background: #0e984d; bottom: -220px; left: 20%; opacity: .4; animation-delay: -12s; }
+    @keyframes drift { from { transform: translate3d(0,0,0) scale(1) } to { transform: translate3d(60px,40px,0) scale(1.12) } }
+    .grain { position: absolute; inset: 0; opacity: .06;
+      background-image: radial-gradient(rgba(255,255,255,.6) 1px, transparent 1px); background-size: 3px 3px; }
+
+    /* ===== 글래스모피즘 ===== */
+    .glass { background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.16); backdrop-filter: blur(18px) saturate(140%);
+      -webkit-backdrop-filter: blur(18px) saturate(140%);
+      box-shadow: 0 10px 40px -10px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.18); }
+    .glass-strong { background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.06)); }
+    .glass-hover:hover { transform: translateY(-6px); border-color: rgba(189,240,90,.5);
+      box-shadow: 0 24px 60px -16px rgba(25,187,97,.45), inset 0 1px 0 rgba(255,255,255,.25); }
+
+    .scroll-prog { position: fixed; top: 0; left: 0; height: 3px; width: 100%; z-index: 70;
+      transform-origin: 0 50%; transform: scaleX(0);
+      background: linear-gradient(90deg, #3fd67f, #bdf05a);
+      animation: scrollGrow auto linear; animation-timeline: scroll(root); }
+    @keyframes scrollGrow { from { transform: scaleX(0) } to { transform: scaleX(1) } }
+
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.8,.2,1);
+      transition-delay: calc(var(--i, 0) * 90ms); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    .drawing { background: #fff; border-radius: 14px; }
+    @media (prefers-reduced-motion: reduce) {
+      .blob { animation: none; } .reveal { opacity: 1; transform: none; transition: none; }
+    }
+  </style>
+</head>
+<body class="antialiased">
+  <div class="scroll-prog" aria-hidden="true"></div>
+  <div class="aurora" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="grain"></div></div>
+
+  <!-- ===== NAV ===== -->
+  <header class="fixed top-0 inset-x-0 z-50 px-3 pt-3">
+    <nav class="max-w-6xl mx-auto px-4 md:px-5 h-14 rounded-2xl glass flex items-center justify-between">
+      <a href="#top" class="flex items-center gap-2 font-bold">
+        <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-leaf-400 to-lime2-400 grid place-items-center text-leaf-950">
+          <iconify-icon icon="solar:leaf-bold" class="text-lg"></iconify-icon>
+        </span>
+        <span class="hidden sm:inline font-display text-xs px-2 py-0.5 rounded-full border border-lime2-400/50 text-lime2-300" data-issue>No.02</span>
+        <span class="keep text-sm md:text-base">한우 사료 첨가제 특허 <span class="font-display text-lime2-400" data-count>2</span>선</span>
+      </a>
+      <div class="hidden md:flex items-center gap-6 text-sm text-leaf-100/80">
+        <a href="#patents" class="hover:text-lime2-300 spring">특허 소개</a>
+        <a href="#compare" class="hover:text-lime2-300 spring">한눈에 비교</a>
+        <a href="#process" class="hover:text-lime2-300 spring">기술이전 절차</a>
+        <a href="#series" class="hover:text-lime2-300 spring">시리즈</a>
+        <a href="#contact" class="hover:text-lime2-300 spring">문의</a>
+      </div>
+      <a href="#contact" class="text-sm font-semibold px-4 py-2 rounded-xl bg-lime2-400 text-leaf-950 hover:bg-lime2-300 spring">기술이전 상담</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- ===== HERO ===== -->
+    <section class="relative pt-32 md:pt-40 pb-20 px-5">
+      <div class="max-w-6xl mx-auto grid lg:grid-cols-[1.15fr_.85fr] gap-12 items-center">
+        <div>
+          <p class="reveal inline-flex items-center gap-2 text-xs md:text-sm px-3 py-1.5 rounded-full glass text-lime2-300">
+            <iconify-icon icon="solar:shield-check-bold-duotone"></iconify-icon> 농촌진흥청 국유특허 · 기술이전 대상
+          </p>
+          <h1 class="reveal mt-6 text-4xl md:text-6xl font-extrabold leading-[1.15] keep" style="--i:1">
+            기후변화에 강한 <span class="bg-gradient-to-r from-leaf-300 to-lime2-400 bg-clip-text text-transparent">한우 사료</span>를 만들다
+          </h1>
+          <p class="reveal mt-6 text-base md:text-lg text-leaf-100/80 leading-relaxed keep max-w-xl" style="--i:2">
+            티아민 이인산 · 아미노산·비타민 복합 첨가제 — 사료에 더해 급여하는 방식으로
+            <b class="text-white">장내 메탄 · 여름철 고온 스트레스</b>를 줄이는 사료 첨가제 특허 <span data-count>2</span>건을 소개합니다.
+            탄소중립과 폭염에 대응하는 한우 사양 관리 기술을 만나보세요.
+          </p>
+          <div class="reveal mt-8 flex flex-wrap gap-3" style="--i:3">
+            <a href="#patents" class="group inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-leaf-400 to-lime2-400 text-leaf-950 font-bold hover:shadow-[0_12px_40px_-8px_rgba(189,240,90,.6)] spring">
+              특허 살펴보기 <iconify-icon icon="solar:arrow-down-linear" class="text-xl spring group-hover:translate-y-0.5"></iconify-icon>
+            </a>
+            <a href="#contact" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl glass font-semibold hover:border-lime2-400/60 spring">
+              <iconify-icon icon="solar:chat-round-dots-bold-duotone" class="text-xl text-lime2-300"></iconify-icon> 기술이전 문의
+            </a>
+          </div>
+        </div>
+
+        <!-- 히어로 우측: 특허 미니 카드 스택 -->
+        <div class="reveal relative" style="--i:2">
+          <div class="glass glass-strong rounded-3xl p-6">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-mono text-lime2-300 tracking-widest">PATENT PORTFOLIO</p>
+              <p class="text-xs text-leaf-100/60">출처 · KIPRIS</p>
+            </div>
+            <ul id="heroList" class="mt-5 space-y-3"></ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 공통 플랫폼 -->
+      <div class="max-w-6xl mx-auto mt-16 grid sm:grid-cols-3 gap-4">
+        <div class="reveal glass rounded-2xl p-5 flex gap-4 items-start" style="--i:0">
+          <iconify-icon icon="solar:earth-bold-duotone" class="text-3xl text-leaf-300 shrink-0"></iconify-icon>
+          <div><p class="font-semibold">탄소중립 축산</p><p class="text-sm text-leaf-100/70 mt-1 keep">반추동물 장내 발효에서 나오는 메탄을 줄여 축산 온실가스 감축에 기여</p></div>
+        </div>
+        <div class="reveal glass rounded-2xl p-5 flex gap-4 items-start" style="--i:1">
+          <iconify-icon icon="solar:sun-2-bold-duotone" class="text-3xl text-leaf-300 shrink-0"></iconify-icon>
+          <div><p class="font-semibold">폭염 대응 사양 관리</p><p class="text-sm text-leaf-100/70 mt-1 keep">고온기 비육후기 한우의 증체·육질 저하를 완화해 출하 성적을 지킴</p></div>
+        </div>
+        <div class="reveal glass rounded-2xl p-5 flex gap-4 items-start" style="--i:2">
+          <iconify-icon icon="solar:box-bold-duotone" class="text-3xl text-leaf-300 shrink-0"></iconify-icon>
+          <div><p class="font-semibold">첨가제로 간편 적용</p><p class="text-sm text-leaf-100/70 mt-1 keep">기존 배합사료에 첨가하거나 급여량만 정해 주는 방식이라 도입이 쉬움</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PATENTS ===== -->
+    <section id="patents" class="px-5 py-20">
+      <div class="max-w-6xl mx-auto">
+        <p class="reveal text-xs font-mono tracking-widest text-lime2-300">01 · FEATURED PATENTS</p>
+        <h2 class="reveal mt-3 text-3xl md:text-4xl font-bold keep" style="--i:1">소개 특허기술</h2>
+        <p class="reveal mt-3 text-leaf-100/70 keep" style="--i:2">각 특허의 핵심 기술, 해결 과제, 활용 분야를 정리했습니다. 카드의 리포트 링크에서 AI 기술분석 전문을 볼 수 있습니다.</p>
+        <div id="patentList" class="mt-12 space-y-10"></div>
+      </div>
+    </section>
+
+    <!-- ===== COMPARE ===== -->
+    <section id="compare" class="px-5 py-20">
+      <div class="max-w-6xl mx-auto">
+        <p class="reveal text-xs font-mono tracking-widest text-lime2-300">02 · AT A GLANCE</p>
+        <h2 class="reveal mt-3 text-3xl md:text-4xl font-bold keep" style="--i:1">한눈에 비교</h2>
+        <div class="reveal mt-10 glass rounded-3xl overflow-x-auto" style="--i:2">
+          <table class="w-full min-w-[760px] text-base">
+            <thead class="text-left text-leaf-100/70">
+              <tr id="compareHead" class="border-b border-white/10">
+                <th class="p-5 font-medium">구분</th>
+              </tr>
+            </thead>
+            <tbody id="compareBody" class="keep"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PROCESS ===== -->
+    <section id="process" class="px-5 py-20">
+      <div class="max-w-6xl mx-auto">
+        <p class="reveal text-xs font-mono tracking-widest text-lime2-300">03 · HOW TO LICENSE</p>
+        <h2 class="reveal mt-3 text-3xl md:text-4xl font-bold keep" style="--i:1">국유특허 기술이전 절차</h2>
+        <p class="reveal mt-3 text-leaf-100/70 keep" style="--i:2">농촌진흥청 국가직무발명 특허는 한국농업기술진흥원을 통해 통상실시 계약으로 이전받을 수 있습니다.</p>
+        <ol id="steps" class="mt-10 grid sm:grid-cols-2 lg:grid-cols-6 gap-4"></ol>
+      </div>
+    </section>
+
+    <!-- ===== SERIES ===== -->
+    <section id="series" class="px-5 py-20">
+      <div class="max-w-6xl mx-auto">
+        <p class="reveal text-xs font-mono tracking-widest text-lime2-300">04 · PATENT SERIES</p>
+        <h2 class="reveal mt-3 text-3xl md:text-4xl font-bold keep" style="--i:1">국유특허 기술이전 시리즈</h2>
+        <p class="reveal mt-3 text-leaf-100/70 keep" style="--i:2">2주마다 새로운 테마의 농촌진흥청 국유특허를 소개합니다. 지난 호도 확인해 보세요.</p>
+        <div id="seriesList" class="reveal mt-10 grid sm:grid-cols-2 lg:grid-cols-3 gap-4" style="--i:3"></div>
+      </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section id="contact" class="px-5 py-24">
+      <div class="reveal max-w-4xl mx-auto glass glass-strong rounded-[2rem] p-8 md:p-14 text-center relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-lime2-400/30 blur-3xl" aria-hidden="true"></div>
+        <div class="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-leaf-500/30 blur-3xl" aria-hidden="true"></div>
+        <iconify-icon icon="solar:hand-shake-bold-duotone" class="relative text-5xl text-lime2-300"></iconify-icon>
+        <h2 class="relative mt-4 text-3xl md:text-4xl font-bold keep">기술이전 · 공동사업화 상담</h2>
+        <p class="relative mt-4 text-leaf-100/80 keep">특허 상세 자료, 실시 조건, 연구자 미팅이 필요하시면 언제든 연락 주세요.<br class="hidden md:block" />한국농업기술진흥원 기술거래이전팀이 기업과 연구자를 연결해 드립니다.</p>
+        <div class="relative mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="mailto:kimjs1408@koat.or.kr?subject=%5B%EA%B8%B0%EC%88%A0%EC%9D%B4%EC%A0%84%20%EB%AC%B8%EC%9D%98%5D%20%EB%B0%9C%ED%9A%A8%20%EB%B0%94%EC%9D%B4%EC%98%A4%EC%86%8C%EC%9E%AC%20%ED%8A%B9%ED%97%88"
+             class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl bg-gradient-to-r from-leaf-400 to-lime2-400 text-leaf-950 font-bold spring hover:shadow-[0_12px_40px_-8px_rgba(189,240,90,.6)]">
+            <iconify-icon icon="solar:letter-bold" class="text-xl"></iconify-icon> kimjs1408@koat.or.kr
+          </a>
+          <a href="tel:063-919-1325" class="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-2xl glass font-semibold spring hover:border-lime2-400/60">
+            <iconify-icon icon="solar:phone-bold" class="text-xl text-lime2-300"></iconify-icon> 063-919-1325
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="py-12 border-t border-white/10">
+    <div class="max-w-6xl mx-auto px-5 grid md:grid-cols-2 gap-6 items-center text-sm">
+      <div>
+        <p class="font-bold">국유특허 기술이전 시리즈 <span data-issue>No.02</span> · 기후변화 대응 한우 사료 첨가제</p>
+        <p class="text-xs text-leaf-100/50 mt-2 keep">특허 서지정보 출처: KIPRIS(한국특허정보원) · 기술분석: Agri IP Summary(AIS)</p>
+      </div>
+      <div class="md:text-right text-leaf-100/70 keep">
+        <p class="font-semibold text-leaf-50"><iconify-icon icon="solar:letter-bold-duotone" class="text-lime2-400 align-middle"></iconify-icon> 문의 · 한국농업기술진흥원 기술거래이전팀</p>
+        <p class="mt-1.5"><a class="spring hover:text-lime2-300" href="mailto:kimjs1408@koat.or.kr">kimjs1408@koat.or.kr</a> <span class="text-leaf-100/30 mx-1">·</span> <a class="spring hover:text-lime2-300" href="tel:063-919-1325">063-919-1325</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const ISSUE = 2;
+
+    const PATENTS = [
+      {
+        id: '10-3013564', status: '등록', badge: '메탄 저감', icon: 'solar:cloud-bold-duotone',
+        title: '티아민 이인산을 포함하는 반추동물의 메탄 생성 저감용 조성물',
+        short: '티아민 이인산 반추동물 메탄 저감',
+        appNo: '10-2023-0176706', appDate: '2023.12.07', regDate: '2026.08.28', expire: '2043.12.07',
+        inventors: '채한화, 박원철, 임다정, 성필남 외 3명',
+        ipc: 'A23K 20/137 · A23K 20/174 · A23K 50/10',
+        keywords: ['탄소중립', '메탄 저감', '사료 첨가제', '한우'],
+        tagline: '비타민 B1 활성형인 티아민 이인산으로 소가 내뿜는 메탄을 줄이다',
+        problem: '반추동물의 장내 발효에서 나오는 메탄은 축산 온실가스의 주요 배출원이지만, 저감 소재가 소화율이나 반추위 발효에 영향을 줄 수 있다는 부담이 있었습니다.',
+        solution: [
+          '티아민 이인산(Thiamine diphosphate)을 50~300 ppm 첨가한 반추동물 메탄 생성 저감용 사료 첨가제 (청구항 1)',
+          '소·염소·사슴·양, 특히 한우에 적용하며 건물 소화율에는 영향을 주지 않음 (청구항 3·4·6)',
+          '첨가제를 배합한 사료 조성물과 급여를 통한 메탄 생성 억제 방법까지 권리화 (청구항 7~9)',
+        ],
+        uses: ['한우·반추가축용 저메탄 배합사료', '축산 온실가스 감축 사업 연계', '사료 첨가제 B2B 원료 공급'],
+        cmp: { '유효성분': '티아민 이인산', '대상 가축': '반추동물(한우 등)', '기능': '장내 메탄 생성 저감', '주요 시장': '배합사료 · 사료 첨가제' },
+        facts: [['50~300 ppm', '티아민 이인산 첨가 농도'], ['4종', '적용 반추동물 (소·염소·사슴·양)'], ['영향 없음', '건물 소화율']],
+      },
+      {
+        id: '10-3013445', status: '등록', badge: '고온 스트레스', icon: 'solar:temperature-bold-duotone',
+        title: '비육후기 거세한우의 고온 스트레스 저감용 사료 첨가제',
+        short: '비육후기 거세한우 고온 스트레스 저감',
+        appNo: '10-2023-0161394', appDate: '2023.11.20', regDate: '2026.08.28', expire: '2043.11.20',
+        inventors: '장선식, 이현정, 박명선, 장기숙 외 2명',
+        ipc: 'A23K 20/142 · A23K 20/174 · A23K 20/20 · A23K 50/10',
+        keywords: ['폭염 대응', '한우 비육', '사료 첨가제', '육질 개선'],
+        tagline: '여름철 폭염에도 한우의 증체와 육질을 지키는 맞춤형 사료 첨가제',
+        problem: '고온다습한 날씨가 길어지면 비육후기 한우의 생산성이 떨어져 출하 성적과 농가 수익이 낮아집니다.',
+        solution: [
+          '라이신·메티오닌 각 3~5%, 비타민 C·유황 각 3~15%로 구성한 19~24개월령 비육후기 거세한우용 사료 첨가제 (청구항 1)',
+          '온습도지수(THI) 78~89가 150일 이상 이어지는 고온기(5~9월)에 1일 두당 40~60 g 급여 (청구항 1·5~8)',
+          '비급여 대비 체중·도체중·근내지방도 개선, 등심 불포화지방산 증가와 오메가 6/3 비율 감소 (청구항 16~19)',
+        ],
+        uses: ['폭염기 한우 비육 농가 사양 관리', '고급육 출하 성적 개선', '기후변화 대응 사료 첨가제 제품화'],
+        cmp: { '유효성분': '라이신 · 메티오닌 · 비타민 C · 유황', '대상 가축': '비육후기 거세한우(19~24개월령)', '기능': '고온 스트레스 저감 · 육질 개선', '주요 시장': '한우 비육 농가 · 사료 첨가제' },
+        facts: [['3~5%', '라이신 · 메티오닌 (각)'], ['3~15%', '비타민 C · 유황 (각)'], ['50 g', '1일 두당 권장 급여량']],
+      },
+    ];
+  </script>
+  <script src="assets/patent-series.js"></script>
+</body>
+</html>
