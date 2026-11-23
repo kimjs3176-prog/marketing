@@ -9,7 +9,7 @@
 // 시리즈 목록 (2주 간격 발행)
 const SERIES = [
   { no: 1, href: 'patents.html',   date: '2026.10.26', title: '천연물 × 유산균 발효 바이오소재', topics: '면역 · 항산화 · 장-뇌 건강' },
-  { no: 2, href: 'patents-2.html', date: '2026.11.23', title: '제주 감귤 유래 뷰티·항염 소재', topics: '탈모 개선 · 염증성 장질환' },
+  { no: 2, href: 'patents-2.html', date: '2026.11.23', title: '기후변화 대응 한우 사료 첨가제', topics: '메탄 저감 · 고온 스트레스 저감' },
 ];
 
 const REPORT = no => 'https://atipsum.lovable.app/?patent=' + no;
@@ -70,10 +70,20 @@ document.getElementById('patentList').innerHTML = PATENTS.map((p, i) => `
           <p class="text-sm md:text-base font-semibold text-leaf-100/70 flex items-center gap-1.5"><iconify-icon icon="solar:widget-5-bold-duotone" class="text-lime2-300 text-xl"></iconify-icon> 활용 분야</p>
           <div class="mt-3 flex flex-wrap gap-2">${p.uses.map(u => `<span class="px-3.5 py-2 rounded-xl bg-leaf-500/15 border border-leaf-300/25 text-base text-leaf-100 keep">${esc(u)}</span>`).join('')}</div>
         </div>
+        ${p.drawing ? `
         <figure class="rounded-2xl bg-white/5 border border-white/10 p-3">
           <img src="${p.drawing}" alt="${esc(p.title)} 대표 도면" loading="lazy" class="drawing w-full h-auto max-h-80 object-contain p-2" />
           <figcaption class="mt-2.5 px-1 text-sm text-leaf-100/70 keep">【대표 도면】 ${esc(p.drawingCap)}</figcaption>
-        </figure>
+        </figure>` : `
+        <div class="rounded-2xl bg-white/5 border border-white/10 p-5">
+          <p class="text-sm md:text-base font-semibold text-leaf-100/70 flex items-center gap-1.5"><iconify-icon icon="solar:chart-square-bold-duotone" class="text-lime2-300 text-xl"></iconify-icon> 청구항 핵심 수치</p>
+          <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">${p.facts.map(([v, l]) => `
+            <div class="rounded-xl bg-leaf-500/10 border border-leaf-300/20 p-4">
+              <p class="font-display text-xl md:text-2xl font-bold text-lime2-300 keep">${esc(v)}</p>
+              <p class="mt-1 text-sm text-leaf-100/70 keep">${esc(l)}</p>
+            </div>`).join('')}
+          </div>
+        </div>`}
       </div>
 
       <aside class="space-y-5">

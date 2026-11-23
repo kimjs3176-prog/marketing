@@ -77,6 +77,7 @@ def fetch(no, drawings_dir=None):
         "title": g("inventionTitle"),
         "titleEng": re.sub(r"\s+", " ", detail.findtext(".//inventionTitleEng") or "").strip(),
         "applicant": " · ".join(a.strip() for a in g("applicantName").split("|")),
+        "jointlyOwned": len([a for a in g("applicantName").split("|") if a.strip()]) > 1,
         "appNo": fmt_no(app, "app"),
         "appDate": fmt_date(g("applicationDate")),
         "openDate": fmt_date(g("openDate")),

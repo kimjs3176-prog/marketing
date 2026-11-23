@@ -37,7 +37,7 @@
 | 호 | 파일 | 테마 | 특허 |
 |---|---|---|---|
 | No.01 | `patents.html` | 천연물 × 유산균 발효 바이오소재 | 10-2839159 · 10-2185438 · 10-2024-0165540 |
-| No.02 | `patents-2.html` | 제주 감귤 유래 뷰티·항염 소재 | 10-2767530 · 10-2578112 |
+| No.02 | `patents-2.html` | 기후변화 대응 한우 사료 첨가제 | 10-3013564 · 10-3013445 |
 
 - 그린 · 글래스모피즘 테마. 화면 그리기는 공통 파일 `assets/patent-series.js`가 맡고, 각 호 페이지에는 문구와 `ISSUE`·`PATENTS` 데이터만 있습니다.
 - 서지정보·청구항·대표 도면은 KIPRIS Plus, 리포트 링크는 Agri IP Summary(atipsum)입니다.
@@ -50,7 +50,7 @@
    python3 scripts/kipris_fetch.py <출원번호 또는 등록번호> ... --drawings docs/assets > /tmp/issue.json
    ```
 2. 최신 호 파일을 복사해 `patents-<N>.html` 생성 → `<title>`·메타·히어로 문구·하단 문구 수정
-3. 같은 파일의 `const ISSUE = N;`과 `PATENTS` 배열을 새 특허로 교체 (공동 출원이면 `owner` 지정, 비교 표 항목은 `cmp`의 키 순서대로 표시)
+3. 같은 파일의 `const ISSUE = N;`과 `PATENTS` 배열을 새 특허로 교체 (비교 표 항목은 `cmp`의 키 순서대로 표시, 대표 도면이 없으면 `drawing` 대신 `facts`에 청구항 핵심 수치 3개)
 4. `assets/patent-series.js`의 `SERIES`에 한 줄 추가 → 모든 호의 '시리즈' 목록에 자동 반영
 5. `index.html`의 '특허 시리즈' 링크 3곳(메뉴·배너·푸터)을 새 호로 변경
 
